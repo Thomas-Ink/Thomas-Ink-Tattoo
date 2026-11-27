@@ -41,9 +41,9 @@ body.visual-edit-mode .nav a{cursor:pointer}
 #newsGrid, #eventsGrid { align-items:stretch; }
 .record-card { padding:0; min-height:0; overflow:hidden; border:1px solid rgba(225,205,169,.24); background:linear-gradient(155deg,#28231e,#191715 78%); box-shadow:0 12px 28px rgba(0,0,0,.18); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
 .record-card:hover { transform:translateY(-5px); border-color:rgba(194,61,55,.75); box-shadow:0 18px 34px rgba(0,0,0,.3); }
-.record-media { width:100%; aspect-ratio:16/10; overflow:hidden; background:#100f0e; border-bottom:3px solid var(--red); }
-.record-image { display:block; width:100%; height:100%; object-fit:cover; margin:0; transition:transform .35s ease; }
-.record-card:hover .record-image { transform:scale(1.035); }
+.record-media { width:100%; aspect-ratio:4/3; overflow:hidden; background:radial-gradient(ellipse at center,#302b25 0%,#100f0e 78%); border-bottom:3px solid var(--red); display:flex; align-items:center; justify-content:center; padding:10px; }
+.record-image { display:block; width:100%; height:100%; object-fit:contain; object-position:center; margin:0; transition:transform .35s ease; }
+.record-card:hover .record-image { transform:scale(1.015); }
 .record-body { padding:22px 23px 24px; display:flex; flex-direction:column; align-items:flex-start; min-height:175px; }
 .record-body .date { display:inline-block; color:#e2a39a; border-bottom:1px solid rgba(194,61,55,.65); padding-bottom:7px; font-size:11px; letter-spacing:1.7px; }
 .record-body h3 { color:var(--paper); font-size:25px; line-height:1.12; margin:14px 0 9px; overflow-wrap:anywhere; }
