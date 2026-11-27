@@ -62,6 +62,25 @@
 @media(max-width:900px){.live-editor-layout{grid-template-columns:1fr}.live-edit-panel{position:static}}
 @media(max-width:600px){.editor-toolbar{grid-template-columns:1fr}.live-page-hero,.live-blocks{padding:24px 18px}}
 
+
+/* Aperçu rapproché du rendu réel des pages publiques */
+.live-public-frame{background:#171513;border:1px solid #78684f}
+.live-public-page{background:#171513;color:#eee3ca;min-height:520px;font-family:'DM Sans',sans-serif}
+.live-page-hero{padding:38px 32px 28px;background:#171513;border:0;border-bottom:1px solid rgba(238,227,202,.18)}
+.live-page-hero .kicker{font:12px Oswald,sans-serif;letter-spacing:3px;color:#a52c2c;text-transform:uppercase}
+.live-page-hero h1{font:600 clamp(36px,5vw,58px)/1 Oswald,sans-serif;text-transform:uppercase;margin:9px 0;color:#eee3ca;letter-spacing:-.5px}
+.live-page-hero p{color:#a99d86;max-width:760px;line-height:1.7;white-space:pre-wrap}
+.live-blocks{padding:24px 32px 42px;background:#171513}
+.live-block{border:1px dashed rgba(165,44,44,.55);padding:17px;margin:12px 0;background:transparent}
+.live-block:hover,.live-block.selected{border-color:#a52c2c;background:#211e1a}
+.live-block h2,.live-block h3{font:600 clamp(24px,4vw,38px)/1.1 Oswald,sans-serif;text-transform:uppercase;color:#eee3ca;margin:8px 0}
+.live-block p{color:#a99d86;line-height:1.7;white-space:pre-wrap}
+.live-block img{max-width:100%;max-height:380px;object-fit:cover;display:block;margin:18px 0;border:6px solid #d9c9a8}
+.live-block .live-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.live-block .live-gallery img{width:100%;height:220px;object-fit:cover;margin:0}
+.live-page-footer{padding:22px 32px;background:#100f0e;color:#9b907d;font:11px Oswald,sans-serif;letter-spacing:2px}
+@media(max-width:600px){.live-page-hero,.live-blocks{padding-left:18px;padding-right:18px}.live-block .live-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style></head><body><header><div><h1>Thoma's Ink Tattoo</h1><div class="muted">Administration privée · contenus synchronisés dans le cloud</div></div><div class="actions"><a href="/">← Voir le site</a><button id="logout" class="secondary hidden">Déconnexion</button></div></header><main>
 <section id="loginPanel" class="panel"><h2>Connexion administrateur</h2><p class="muted">Connecte-toi avec ton compte administrateur. Ne partage jamais ton mot de passe.</p><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password"><button id="login">Se connecter</button><div id="loginStatus" class="status hidden" role="status"></div></section>
 <section id="app" class="hidden"><div id="status" class="status" role="status">Vérification de l'accès…</div>
@@ -206,22 +225,4 @@ $('saveVisualPage').onclick=()=>task(async()=>{const title=$('visualPageTitle').
 liveResetFields();liveRender();
 const oldRefresh=refresh;refresh=async()=>{await oldRefresh();if(!$('app').classList.contains('hidden')){await ensureSystemPages();await loadVisualPages(activePage?.slug)}};
 refresh();
-</script></body></html><style>
-/* Aperçu rapproché du rendu réel des pages publiques */
-.live-public-frame{background:#171513;border:1px solid #78684f}
-.live-public-page{background:#171513;color:#eee3ca;min-height:520px;font-family:'DM Sans',sans-serif}
-.live-page-hero{padding:38px 32px 28px;background:#171513;border:0;border-bottom:1px solid rgba(238,227,202,.18)}
-.live-page-hero .kicker{font:12px Oswald,sans-serif;letter-spacing:3px;color:#a52c2c;text-transform:uppercase}
-.live-page-hero h1{font:600 clamp(36px,5vw,58px)/1 Oswald,sans-serif;text-transform:uppercase;margin:9px 0;color:#eee3ca;letter-spacing:-.5px}
-.live-page-hero p{color:#a99d86;max-width:760px;line-height:1.7;white-space:pre-wrap}
-.live-blocks{padding:24px 32px 42px;background:#171513}
-.live-block{border:1px dashed rgba(165,44,44,.55);padding:17px;margin:12px 0;background:transparent}
-.live-block:hover,.live-block.selected{border-color:#a52c2c;background:#211e1a}
-.live-block h2,.live-block h3{font:600 clamp(24px,4vw,38px)/1.1 Oswald,sans-serif;text-transform:uppercase;color:#eee3ca;margin:8px 0}
-.live-block p{color:#a99d86;line-height:1.7;white-space:pre-wrap}
-.live-block img{max-width:100%;max-height:380px;object-fit:cover;display:block;margin:18px 0;border:6px solid #d9c9a8}
-.live-block .live-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.live-block .live-gallery img{width:100%;height:220px;object-fit:cover;margin:0}
-.live-page-footer{padding:22px 32px;background:#100f0e;color:#9b907d;font:11px Oswald,sans-serif;letter-spacing:2px}
-@media(max-width:600px){.live-page-hero,.live-blocks{padding-left:18px;padding-right:18px}.live-block .live-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</style>
+</script></body></html>
