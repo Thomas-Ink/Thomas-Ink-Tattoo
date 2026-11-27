@@ -55,9 +55,7 @@ async function showCustomPages(){
      const back=make('a','btn custom-link','← Retour à l’accueil');back.href='/';wrap.append(back);
      document.title=page.title+" — Thoma's Ink Tattoo";
    }else{home.innerHTML='<section class="section"><div class="wrap"><h2>Page introuvable</h2><p>Cette page n’existe pas ou n’est pas publiée.</p><a class="btn" href="/">Retour à l’accueil</a></div></section>';}
- }else{
-   const out=document.getElementById('customSections');if(out){out.innerHTML='';(data||[]).filter(p=>p.show_in_menu).forEach((p,i)=>{const sec=make('section','section '+(i%2?'paper':''));const wrap=make('div','wrap');const h=make('h2','',p.title);const intro=make('p','section-intro dark-intro',p.content||'Découvrir cette page');const a=make('a','btn','Découvrir');a.href='/'+p.slug;wrap.append(h,intro,a);sec.append(wrap);out.append(sec)})}
- }
+ }else{const out=document.getElementById('customSections');if(out)out.innerHTML='';}
 }
 
 showCustomPages();
