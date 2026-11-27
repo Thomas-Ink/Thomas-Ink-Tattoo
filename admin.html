@@ -11,7 +11,7 @@
 </section></main>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26V9p4zwYKB-_w4lUpcg_DghXwS2X');const $=id=>document.getElementById(id);const status=$('status');
+const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26vS9p4zwYKB-_w4lUpcg_DghXwS2X');const $=id=>document.getElementById(id);const status=$('status');
 function say(t){if(status)status.textContent=t}function loginError(t){$('loginStatus').textContent=t;$('loginStatus').classList.remove('hidden')}
 async function adminCheck(){const {data:{user},error}=await db.auth.getUser();if(error||!user)return false;const {data,error:e}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();return !e&&!!data}
 async function refresh(){if(await adminCheck()){$('loginPanel').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');say('Connecté. Les modifications sont synchronisées avec Supabase.');await Promise.all([loadSettings(),loadLists()])}else{await db.auth.signOut();$('loginPanel').classList.remove('hidden');$('app').classList.add('hidden');$('logout').classList.add('hidden')}}
