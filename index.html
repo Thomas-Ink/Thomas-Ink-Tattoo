@@ -28,37 +28,55 @@
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26vS9p4zwYKB-_w4lUpcg_DghXwS2X');
-const esc=s=>String(s??'');
 function make(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
-
+const CORE=[['galerie','Galerie'],['actualites','Actualités'],['evenements','Événements'],['vinted','Vinted'],['le-shop','Le shop'],['contact','Contact']];
+function safeUrl(value){try{const u=new URL(value,location.origin);return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch{return '#'}}
 function renderPublicBlock(container,b){
  if(!b||!b.type)return;
- if(b.type==='heading'){const h=make('h3','',b.text||'');container.append(h)}
- if(b.type==='text'){container.append(make('p','custom-content',b.text||''))}
+ if(b.type==='heading')container.append(make('h3','',b.text||''));
+ if(b.type==='text')container.append(make('p','custom-content',b.text||''));
  if(b.type==='image'&&b.url){const f=make('figure','page-figure'),im=make('img','custom-image');im.src=b.url;im.alt=b.caption||'';f.append(im);if(b.caption)f.append(make('figcaption','page-caption',b.caption));container.append(f)}
- if(b.type==='button'&&b.url){const a=make('a','btn custom-link',b.label||'En savoir plus');a.href=b.url;a.target='_blank';a.rel='noopener noreferrer';container.append(a)}
- if(b.type==='gallery'&&Array.isArray(b.images)){const g=make('div','grid3 page-gallery');b.images.forEach(src=>{const im=make('img','custom-image');im.src=src;im.alt=b.caption||'Photo';g.append(im)});container.append(g);if(b.caption)container.append(make('p','page-caption',b.caption))}
+ if(b.type==='button'&&b.url){const a=make('a','btn custom-link',b.label||'En savoir plus');a.href=safeUrl(b.url);a.target='_blank';a.rel='noopener noreferrer';container.append(a)}
+ if(b.type==='gallery'&&Array.isArray(b.images)&&b.images.length){const g=make('div','grid3 page-gallery');b.images.forEach(src=>{const im=make('img','custom-image');im.src=src;im.alt=b.caption||'Photo';g.append(im)});container.append(g);if(b.caption)container.append(make('p','page-caption',b.caption))}
+}
+function setText(selector,value){const el=document.querySelector(selector);if(el&&value)el.textContent=String(value)}
+async function loadPublicSettings(){
+ const {data,error}=await db.from('site_settings').select('setting_key,setting_value');
+ if(error){console.warn('Paramètres publics indisponibles',error.message);return}
+ const s=Object.fromEntries((data||[]).map(x=>[x.setting_key,x.setting_value]));
+ if(s.logo_url){document.querySelectorAll('.brand img,.hero-mark img').forEach(img=>img.src=s.logo_url)}
+ if(s.hero_title){const parts=String(s.hero_title).split('|');const h=document.querySelector('.hero h1');if(h){h.textContent='';h.append(document.createTextNode(parts[0]||''));const span=make('span','',parts.slice(1).join(' ')||'');h.append(span)}}
+ setText('.hero-copy>p',s.hero_text);
+ if(s.hero_image){const hero=document.querySelector('.hero');if(hero)hero.style.backgroundImage=`linear-gradient(90deg,#171513 0%,rgba(23,21,19,.88) 48%,rgba(23,21,19,.58) 100%),url("${String(s.hero_image).replace(/["\\]/g,'')}")`}
+ setText('.artist-copy p',s.profile_text);
+ const vb=document.getElementById('vintedButton');if(vb&&s.vinted_url)vb.href=safeUrl(s.vinted_url);
+ const socials=document.getElementById('socialLinks');if(socials&&Array.isArray(s.social_links)){socials.innerHTML='';s.social_links.forEach(item=>{if(!item||!item.url)return;const a=make('a','',item.label||item.name||'Réseau');a.href=safeUrl(item.url);a.target='_blank';a.rel='noopener noreferrer';socials.append(a)})}
+}
+function renderRecords(container,rows,kind){
+ container.innerHTML='';if(!rows?.length){container.append(make('div','empty dark',kind==='gallery'?'Les photos seront bientôt ajoutées.':'Aucune publication pour le moment.'));return}
+ rows.forEach(item=>{const card=make('article',kind==='gallery'?'tile':'news-card');
+  if(kind==='gallery'){const im=make('img');im.src=item.image_url;im.alt=item.title||'Tatouage';card.append(im);card.append(make('div','tile-label',item.title||'Réalisation'))}
+  else{if(kind==='news'&&item.image_url){const im=make('img','event-poster');im.src=item.image_url;im.alt=item.title||'';card.append(im)}if(kind==='events'&&item.poster_url){const im=make('img','event-poster');im.src=item.poster_url;im.alt=item.title||'';card.append(im)}card.append(make('div','date',item.event_date?new Date(item.event_date).toLocaleString('fr-FR'):(item.published_at?new Date(item.published_at).toLocaleDateString('fr-FR'):'THOMA’S INK')));card.append(make('h3','',item.title||''));card.append(make('p','',item.excerpt||item.description||item.content||''))}
+  container.append(card)
+ })
+}
+async function loadCoreContent(slug,wrap){
+ if(slug==='galerie'){const {data,error}=await db.from('gallery').select('title,image_url,sort_order').eq('published',true).order('sort_order',{ascending:true});if(error)console.warn(error.message);else{const box=make('div','grid3');renderRecords(box,data,'gallery');wrap.append(box)}}
+ if(slug==='actualites'){const {data,error}=await db.from('news').select('title,excerpt,content,image_url,published_at').eq('published',true).order('published_at',{ascending:false});if(error)console.warn(error.message);else{const box=make('div','grid3');renderRecords(box,data,'news');wrap.append(box)}}
+ if(slug==='evenements'){const {data,error}=await db.from('events').select('title,description,event_date,poster_url,location').eq('published',true).order('event_date',{ascending:true});if(error)console.warn(error.message);else{const box=make('div','grid3');renderRecords(box,data,'events');wrap.append(box)}}
 }
 async function showCustomPages(){
  const {data,error}=await db.from('pages').select('title,slug,content,blocks,published,show_in_menu,sort_order').eq('published',true).order('sort_order',{ascending:true});
  if(error){console.warn('Pages personnalisées indisponibles',error.message);return}
- const nav=document.querySelector('.links'),home=document.getElementById('home');
- const core=['galerie','actualites','evenements','vinted','le-shop','contact'];
- if(nav){nav.innerHTML='';(data||[]).filter(p=>p.show_in_menu).forEach(p=>{const a=make('a','',p.title);a.href='/'+p.slug;nav.append(a)});const c=make('a','nav-cta','Nous contacter');c.href='/contact';nav.append(c)}
- const path=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,''));
- if(!path){return}
- const page=(data||[]).find(p=>p.slug===path);
- if(!page){home.innerHTML='<section class="section"><div class="wrap"><h2>Page introuvable</h2><p>Cette page n’existe pas ou n’est pas publiée.</p><a class="btn" href="/">Retour à l’accueil</a></div></section>';return}
- home.innerHTML='';
- const shell=make('section','section');const wrap=make('div','wrap');
- const head=make('div','section-head'),left=make('div',''),kick=make('div','kicker',"THOMA'S INK TATTOO · À DÉCOUVRIR"),h=make('h2','',page.title);left.append(kick,h);head.append(left);wrap.append(head);
- if(page.content)wrap.append(make('p','section-intro dark-intro',page.content));
- (Array.isArray(page.blocks)?page.blocks:[]).forEach(b=>renderPublicBlock(wrap,b));
- const back=make('a','btn custom-link','← Retour à l’accueil');back.href='/';wrap.append(back);
- shell.append(wrap);home.append(shell);document.title=page.title+" — Thoma's Ink Tattoo";
+ const pages=data||[],nav=document.querySelector('.links'),home=document.getElementById('home');
+ if(nav){nav.innerHTML='';const bySlug=new Map(pages.map(p=>[p.slug,p]));CORE.forEach(([slug,label])=>{const p=bySlug.get(slug);const a=make('a','',p?.title||label);a.href='/'+slug;nav.append(a)});pages.filter(p=>p.show_in_menu&&!CORE.some(x=>x[0]===p.slug)).forEach(p=>{const a=make('a','',p.title);a.href='/'+p.slug;nav.append(a)});const c=make('a','nav-cta','Nous contacter');c.href='/contact';nav.append(c)}
+ const path=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,''));if(!path)return;
+ const page=pages.find(p=>p.slug===path);if(!page){home.innerHTML='<section class="section"><div class="wrap"><h2>Page introuvable</h2><p>Cette page n’existe pas ou n’est pas publiée.</p><a class="btn" href="/">Retour à l’accueil</a></div></section>';return}
+ home.innerHTML='';const shell=make('section','section');const wrap=make('div','wrap');const head=make('div','section-head'),left=make('div',''),kick=make('div','kicker',"THOMA'S INK TATTOO · À DÉCOUVRIR"),h=make('h2','',page.title);left.append(kick,h);head.append(left);wrap.append(head);
+ if(page.content)wrap.append(make('p','section-intro dark-intro',page.content));(Array.isArray(page.blocks)?page.blocks:[]).forEach(b=>renderPublicBlock(wrap,b));await loadCoreContent(path,wrap);
+ const back=make('a','btn custom-link','← Retour à l’accueil');back.href='/';wrap.append(back);shell.append(wrap);home.append(shell);document.title=page.title+" — Thoma's Ink Tattoo";
 }
-
-showCustomPages();
+await loadPublicSettings();await showCustomPages();
 </script>
 
 </body></html>
