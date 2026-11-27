@@ -52,6 +52,8 @@ body.visual-edit-mode .nav a{cursor:pointer}
 @media(max-width:760px) { #newsGrid,#eventsGrid { grid-template-columns:1fr; } .record-body { min-height:0; padding:19px; } .record-body h3 { font-size:23px; } }
 .record-open{display:inline-flex;margin-top:auto;padding-top:18px;color:#f0b0a6;font:600 12px var(--display);letter-spacing:1.6px;text-transform:uppercase}.record-open:hover{color:#fff}.record-detail{max-width:900px;margin:0 auto;background:linear-gradient(155deg,#28231e,#191715);border:1px solid rgba(225,205,169,.24);box-shadow:0 18px 42px #0005;overflow:hidden}.record-detail-media{background:#100f0e;padding:18px;text-align:center;border-bottom:3px solid var(--red)}.record-detail-media img{display:block;max-width:100%;max-height:650px;width:auto;height:auto;object-fit:contain;margin:auto}.record-detail-body{padding:clamp(22px,5vw,48px)}.record-detail-body h2{font:600 clamp(34px,6vw,54px)/1.05 var(--display);text-transform:uppercase;margin:14px 0}.record-detail-text{white-space:pre-wrap;color:#d2c6b1;line-height:1.8;margin-top:22px}.record-detail-location{color:#e2cba1;margin-top:18px}
 
+
+.shop-category-filters{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 24px}.shop-category-filters button{border:1px solid #8f8068;background:transparent;color:var(--paper);padding:10px 15px;font:600 11px var(--display);letter-spacing:1px;text-transform:uppercase;cursor:pointer}.section.paper .shop-category-filters button{color:var(--ink);border-color:#9a8b70}.shop-category-filters button.active{background:var(--red);border-color:var(--red);color:#fff}.product-card[hidden]{display:none!important}
 </style></head>
 <body><div class="topline"></div>
 <header class="nav"><div class="wrap navin"><a class="brand" href="/"><img src="assets/logo-thomas-ink.jpg" alt="Logo Thoma's Ink Tattoo"><span>Thoma's Ink<small>Studio de tatouage</small></span></a><nav class="links"><a href="/galerie">Galerie</a><a href="/actualites">Actualités</a><a href="/evenements">Événements</a><a href="/le-shop">Le shop</a><a href="/boutique">La boutique</a><span id="customNav"></span><a href="/contact">Contact</a></nav><a class="nav-cta" href="/contact">Nous contacter</a></div></header>
@@ -258,8 +260,19 @@ async function addCoreContent(slug, container) {
   } else if (slug === 'boutique') {
     const [{data:products},{data:settings}] = await Promise.all([db.from('site_settings').select('setting_value').eq('setting_key','shop_products').maybeSingle(),db.from('site_settings').select('setting_value').eq('setting_key','vinted_url').maybeSingle()]);
     let items=products?.setting_value||[];if(typeof items==='string'){try{items=JSON.parse(items)}catch{items=[]}};const grid=make('div','grid3');const visible=Array.isArray(items)?items.filter(x=>x&&x.published!==false).sort((a,b)=>(a.order||0)-(b.order||0)):[];
+    const categoryNames=['Pulls & sweats','T-shirts','Jeans & pantalons','Vestes & manteaux','Chaussures','Accessoires','Goodies','Autres'];
+    const normalizeCategory=value=>categoryNames.includes(value)?value:'Autres';
     if(!visible.length)grid.append(make('div','empty dark','Les articles seront bientôt disponibles.'));
-    visible.forEach(p=>{const card=make('article','product-card');if(p.photo){const img=make('img');img.src=safeUrl(p.photo);img.alt=p.title||'Article';card.append(img)}const body=make('div','card-body');if(p.category)body.append(make('div','kicker',p.category));body.append(make('h3','',p.title||'Article'));if(p.price)body.append(make('strong','',p.price));if(p.description)body.append(make('p','',p.description));const buy=make('a','btn','Acheter sur Vinted');buy.href=safeUrl(p.vinted_url);buy.target='_blank';buy.rel='noopener noreferrer';body.append(buy);card.append(body);grid.append(card)});container.append(grid);const account=parseSetting(settings?.setting_value);if(account){const all=make('a','btn custom-link','Voir toute la boutique sur Vinted');all.href=safeUrl(account);all.target='_blank';all.rel='noopener noreferrer';container.append(all)}
+    else {
+      const filters=make('div','shop-category-filters');
+      const filterButtons=[];
+      const addFilter=(label,value)=>{const b=make('button',value==='all'?'active':'',label);b.type='button';b.addEventListener('click',()=>{filterButtons.forEach(x=>x.classList.toggle('active',x===b));grid.querySelectorAll('.product-card').forEach(card=>{card.hidden=value!=='all'&&card.dataset.category!==value})});filters.append(b);filterButtons.push(b)};
+      addFilter('Tout','all');
+      categoryNames.forEach(category=>{if(visible.some(item=>normalizeCategory(item.category)===category))addFilter(category,category)});
+      visible.forEach(p=>{const category=normalizeCategory(p.category);const card=make('article','product-card');card.dataset.category=category;if(p.photo){const img=make('img');img.src=safeUrl(p.photo);img.alt=p.title||'Article';card.append(img)}const body=make('div','card-body');body.append(make('div','kicker',category));body.append(make('h3','',p.title||'Article'));if(p.price)body.append(make('strong','',p.price));if(p.description)body.append(make('p','',p.description));const buy=make('a','btn','Acheter sur Vinted');buy.href=safeUrl(p.vinted_url);buy.target='_blank';buy.rel='noopener noreferrer';body.append(buy);card.append(body);grid.append(card)});
+      container.append(filters);
+    }
+    container.append(grid);const account=parseSetting(settings?.setting_value);if(account){const all=make('a','btn custom-link','Voir toute la boutique sur Vinted');all.href=safeUrl(account);all.target='_blank';all.rel='noopener noreferrer';container.append(all)}
   }
 }
 
