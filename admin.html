@@ -27,6 +27,41 @@
 .page-list-panel{margin-top:22px}
 @media(max-width:850px){.visual-workspace{grid-template-columns:1fr}.visual-tools{position:static}.editor-meta{grid-template-columns:1fr}}
 
+
+.editor-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.editor-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px;background:#171513;border:1px solid var(--line);margin:18px 0}
+.editor-toolbar label,.live-edit-panel label{display:block;color:#c8b99d;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.editor-toolbar input,.editor-toolbar textarea,.editor-toolbar select,.live-edit-panel input,.live-edit-panel textarea,.live-edit-panel select{width:100%;padding:10px;background:#eee3ca;color:#171513;border:0;margin-top:6px}
+.editor-toolbar .inline-check{display:flex;align-items:center;gap:8px}.editor-toolbar .inline-check input{width:auto;margin:0}
+.live-editor-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.7fr);gap:18px;align-items:start}
+.live-public-frame{border:1px solid #78684f;background:#171513;min-width:0}
+.live-frame-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 16px;background:#30251f;color:#eee3ca;font-size:11px;letter-spacing:1px}
+.live-public-page{background:#171513;color:#eee3ca;min-height:520px;font-family:'DM Sans',sans-serif}
+.live-page-hero{padding:58px 38px;background:radial-gradient(ellipse at 78% 45%,rgba(165,44,44,.23),transparent 38%),linear-gradient(90deg,#171513,#30251f);border-bottom:1px solid rgba(238,227,202,.18)}
+.live-page-hero .kicker{font:12px Oswald,sans-serif;letter-spacing:3px;color:#d7a7a0;text-transform:uppercase}
+.live-page-hero h1{font:700 clamp(38px,6vw,70px)/1 Oswald,sans-serif;text-transform:uppercase;margin:14px 0;color:#eee3ca}
+.live-page-hero p{color:#c6baa4;max-width:720px;white-space:pre-wrap}
+.live-blocks{padding:26px 38px}
+.live-block{position:relative;padding:17px;margin:12px 0;border:1px dashed transparent;cursor:pointer}
+.live-block:hover,.live-block.selected{border-color:#a52c2c;background:#211e1a}
+.live-block-controls{display:flex;justify-content:flex-end;gap:6px;margin:-8px -8px 8px;opacity:.35}
+.live-block:hover .live-block-controls,.live-block.selected .live-block-controls{opacity:1}
+.live-block-controls button{font-size:10px;padding:5px 8px}
+.live-block h2,.live-block h3{font:600 clamp(24px,4vw,38px)/1.1 Oswald,sans-serif;text-transform:uppercase;color:#eee3ca;margin:8px 0}
+.live-block p{color:#c6baa4;line-height:1.7;white-space:pre-wrap}
+.live-block img{max-width:100%;max-height:420px;object-fit:cover;display:block;margin:12px auto;border:5px solid #d9c9a8}
+.live-block .live-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.live-block .live-gallery img{width:100%;height:180px;object-fit:cover}
+.live-block a.live-button{display:inline-flex;background:#a52c2c;color:white;padding:12px 18px;font:600 12px Oswald,sans-serif;letter-spacing:1px;text-transform:uppercase}
+.live-add-block{width:100%;padding:14px;background:transparent;border:1px dashed #a52c2c;color:#eee3ca;cursor:pointer}
+.live-page-footer{padding:22px 38px;background:#100f0e;color:#9b907d;font:11px Oswald,sans-serif;letter-spacing:2px}
+.live-edit-panel{position:sticky;top:14px;background:#171513;border:1px solid var(--line);padding:18px}
+.live-edit-panel h3{font:22px Oswald,sans-serif;text-transform:uppercase;margin:0 0 16px}
+.live-edit-panel label{margin:12px 0}
+.live-edit-panel textarea{min-height:110px}
+@media(max-width:900px){.live-editor-layout{grid-template-columns:1fr}.live-edit-panel{position:static}}
+@media(max-width:600px){.editor-toolbar{grid-template-columns:1fr}.live-page-hero,.live-blocks{padding:24px 18px}}
+
 </style></head><body><header><div><h1>Thoma's Ink Tattoo</h1><div class="muted">Administration privée · contenus synchronisés dans le cloud</div></div><div class="actions"><a href="/">← Voir le site</a><button id="logout" class="secondary hidden">Déconnexion</button></div></header><main>
 <section id="loginPanel" class="panel"><h2>Connexion administrateur</h2><p class="muted">Connecte-toi avec ton compte administrateur. Ne partage jamais ton mot de passe.</p><label for="email">Adresse e-mail</label><input id="email" type="email" autocomplete="username"><label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password"><button id="login">Se connecter</button><div id="loginStatus" class="status hidden" role="status"></div></section>
 <section id="app" class="hidden"><div id="status" class="status" role="status">Vérification de l'accès…</div>
@@ -35,23 +70,39 @@
 <div class="panel"><h2>Actualités</h2><div class="grid"><div><label>Titre</label><input id="newsTitle"><label>Résumé</label><textarea id="newsExcerpt"></textarea><label>Texte complet</label><textarea id="newsContent"></textarea></div><div><label>Image (facultatif)</label><input id="newsFile" type="file" accept="image/jpeg,image/png,image/webp,gif"><label><input id="newsPublished" type="checkbox" checked style="width:auto"> Publier immédiatement</label><button id="addNews">Publier l'actualité</button></div></div><div id="newsList"></div></div>
 
 
-<div class="panel" id="pageBuilder">
- <div class="editor-top"><div><h2>Éditeur visuel des pages</h2><p class="muted">La page apparaît comme sur le site public. Clique sur un élément pour le modifier directement.</p></div><div class="actions"><button id="newPage" class="secondary" type="button">Nouvelle page</button><button id="savePage" type="button">Enregistrer la page</button></div></div>
- <div class="editor-meta grid">
-  <div><label for="pageTitle">Titre de la page</label><input id="pageTitle" placeholder="Ex. Soins après tatouage"></div>
-  <div><label for="pageSlug">Adresse de la page</label><input id="pageSlug" placeholder="soins-apres-tatouage"></div>
-  <div><label for="pageIntro">Introduction</label><textarea id="pageIntro" placeholder="Une courte présentation..."></textarea></div>
-  <div class="editor-checks"><label><input id="pagePublished" type="checkbox" checked style="width:auto"> Page publiée</label><label><input id="pageMenu" type="checkbox" checked style="width:auto"> Afficher dans le menu</label></div>
- </div>
- <div class="visual-workspace">
-  <section class="public-canvas-wrap"><div class="canvas-bar"><strong>Aperçu de la page publique</strong><span>Clique sur un élément pour le sélectionner</span></div>
-   <div id="pagePreview" class="page-preview"><div class="pv-head"><div class="pv-kicker">THOMA'S INK TATTOO · À DÉCOUVRIR</div><h2 id="pvTitle">Titre de la page</h2><p id="pvIntro" class="pv-intro">Ton introduction apparaîtra ici.</p></div><div id="pvBlocks" class="pv-content"></div></div>
-  </section>
-  <aside class="visual-tools"><h3 id="editorPanelTitle">Ajouter un élément</h3><label for="blockType">Type d’élément</label><select id="blockType"><option value="heading">Titre</option><option value="text">Texte</option><option value="image">Photo</option><option value="button">Bouton / lien</option><option value="gallery">Galerie photos</option></select><div id="blockFields"></div><div class="actions"><button id="addBlock" type="button">Ajouter à la page</button><button id="clearSelection" class="secondary" type="button">Annuler la sélection</button></div><p class="muted">Sélectionne un bloc dans l’aperçu pour le modifier, le déplacer ou le supprimer.</p></aside>
- </div>
- <div class="panel page-list-panel"><h3>Mes pages</h3><div id="pagesList"></div></div><button id="cancelPage" class="secondary hidden" type="button">Annuler les modifications</button>
-</div>
 
+<div class="panel" id="pageBuilder">
+ <div class="editor-heading">
+  <div><h2>Éditeur du site en direct</h2><p class="muted">Choisis une page, puis modifie directement son contenu dans le rendu public.</p></div>
+  <div class="actions"><button id="createPage" class="secondary" type="button">+ Nouvelle page</button><button id="saveVisualPage" type="button">Enregistrer</button></div>
+ </div>
+ <div class="editor-toolbar">
+  <label>Page à modifier<select id="visualPageSelect"></select></label>
+  <label>Titre de la page<input id="visualPageTitle" placeholder="Titre"></label>
+  <label>Adresse<input id="visualPageSlug" placeholder="adresse-de-page"></label>
+  <label>Introduction<textarea id="visualPageIntro" rows="2"></textarea></label>
+  <label class="inline-check"><input id="visualPagePublished" type="checkbox" checked> Publiée</label>
+  <label class="inline-check"><input id="visualPageMenu" type="checkbox" checked> Affichée dans le menu</label>
+ </div>
+ <div class="live-editor-layout">
+  <div class="live-public-frame">
+   <div class="live-frame-top"><b>APERÇU PUBLIC — MODE ÉDITION</b><span>Clique sur un élément pour le modifier</span></div>
+   <div id="livePublicPage" class="live-public-page">
+    <div class="live-page-hero"><div class="kicker">THOMA'S INK TATTOO</div><h1 id="liveTitle">Titre de la page</h1><p id="liveIntro">Introduction de la page</p></div>
+    <div id="liveBlocks" class="live-blocks"></div>
+    <div class="live-page-footer">THOMA'S INK TATTOO · ART · INK · PASSION</div>
+   </div>
+  </div>
+  <aside class="live-edit-panel">
+   <h3 id="liveEditHeading">Ajouter un élément</h3>
+   <label>Type d'élément<select id="liveBlockType"><option value="heading">Titre</option><option value="text">Texte</option><option value="image">Photo</option><option value="button">Bouton / lien</option><option value="gallery">Galerie de photos</option></select></label>
+   <div id="liveBlockFields"></div>
+   <div class="actions"><button id="saveLiveBlock" type="button">Ajouter l'élément</button><button id="cancelLiveBlock" class="secondary" type="button">Annuler</button></div>
+   <p class="muted">Sélectionne un bloc dans la page pour le modifier. Les flèches permettent de changer son ordre.</p>
+  </aside>
+ </div>
+ <div class="panel page-list-panel"><h3>Pages du site</h3><div id="visualPagesList"></div></div>
+</div>
 <div class="panel"><h2>Événements et affiches</h2><div class="grid"><div><label>Nom de l'événement</label><input id="eventTitle"><label>Date et heure</label><input id="eventDate" type="datetime-local"><label>Lieu</label><input id="eventLocation"></div><div><label>Description</label><textarea id="eventDescription"></textarea><label>Affiche / photo</label><input id="eventFile" type="file" accept="image/jpeg,image/png,image/webp,gif"><label><input id="eventPublished" type="checkbox" checked style="width:auto"> Publier immédiatement</label><button id="addEvent">Publier l'événement</button></div></div><div id="eventsList"></div></div>
 </section></main>
 <script type="module">
@@ -76,53 +127,83 @@ async function loadLists(){for(const [table,box] of [['gallery','galleryList'],[
 async function editItem(table,x){const title=prompt('Titre / nom :',x.title||'');if(title===null)return;let patch={title:title.trim()};if(table==='gallery'){const description=prompt('Description :',x.description||'');if(description===null)return;const category=prompt('Catégorie :',x.category||'');if(category===null)return;patch.description=description;patch.category=category;const order=prompt('Ordre d’affichage (nombre) :',String(x.sort_order??0));if(order===null)return;patch.sort_order=Number(order)||0;const pub=confirm('Photo visible sur le site ? OK = oui, Annuler = brouillon');patch.published=pub}else if(table==='news'){const excerpt=prompt('Résumé :',x.excerpt||'');if(excerpt===null)return;const content=prompt('Texte complet :',x.content||'');if(content===null)return;patch.excerpt=excerpt;patch.content=content;patch.published=confirm('Publier cette actualité ? OK = oui, Annuler = brouillon')}else{const description=prompt('Description :',x.description||'');if(description===null)return;const location=prompt('Lieu :',x.location||'');if(location===null)return;patch.description=description;patch.location=location;patch.published=confirm('Publier cet événement ? OK = oui, Annuler = brouillon')}await task(async()=>{const {error}=await db.from(table).update(patch).eq('id',x.id);if(error)throw error})}
 
 
-// Éditeur visuel des pages personnalisées
-let pageBlocks=[], editingPageId=null, selectedBlockIndex=null;
-const blockFields=$('blockFields'), pvBlocks=$('pvBlocks');
-function addField(label,id,type='text',placeholder=''){const l=document.createElement('label');l.textContent=label;const el=document.createElement(type==='textarea'?'textarea':'input');el.id=id;if(type!=='textarea')el.type=type;el.placeholder=placeholder;blockFields.append(l,el);return el}
-function drawFields(b={}){blockFields.innerHTML='';const t=$('blockType').value;
- if(t==='heading'||t==='text')addField(t==='heading'?'Texte du titre':'Texte','editText',t==='text'?'textarea':'text','Écris ici…').value=b.text||'';
- if(t==='image'){addField('Légende','editCaption','text','Facultatif').value=b.caption||'';addField('Choisir / remplacer la photo','editFile','file')}
- if(t==='button'){addField('Texte du bouton','editLabel','text','Prendre rendez-vous').value=b.label||'';addField('Lien du bouton','editUrl','url','https://…').value=b.url||''}
- if(t==='gallery'){addField('Légende de la galerie','editCaption','text','Facultatif').value=b.caption||'';const f=addField('Ajouter des photos','editFiles','file');f.multiple=true;f.accept='image/jpeg,image/png,image/webp,image/gif'}
+
+// Éditeur visuel en direct : mêmes blocs et styles que les pages publiques.
+let visualPages=[], activePage=null, visualBlocks=[], selectedVisualBlock=-1;
+const liveFields=$('liveBlockFields'), liveBlocks=$('liveBlocks');
+const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+const systemPages=[
+ {title:'Accueil',slug:'accueil',content:"Bienvenue chez Thoma's Ink Tattoo. Un univers dédié à l'encre, au dessin et à la passion du tatouage.",show_in_menu:false},
+ {title:'Galerie',slug:'galerie',content:"Une sélection de réalisations du shop.",show_in_menu:true},
+ {title:'Actualités',slug:'actualites',content:"Flash days, guests, disponibilités et nouvelles du shop.",show_in_menu:true},
+ {title:'Événements',slug:'evenements',content:"Flash days, guest artists et rendez-vous du shop.",show_in_menu:true},
+ {title:'Vinted',slug:'vinted',content:"Retrouvez les articles mis en vente et accédez au dressing Vinted du shop.",show_in_menu:true},
+ {title:'Le shop',slug:'le-shop',content:"L'esprit du shop, son univers et ses projets.",show_in_menu:true},
+ {title:'Contact',slug:'contact',content:"Coordonnées, horaires et réseaux sociaux.",show_in_menu:true}
+];
+function liveField(label,id,type='text',value='',placeholder=''){const l=document.createElement('label');l.textContent=label;let el=document.createElement(type==='textarea'?'textarea':'input');el.id=id;if(type!=='textarea')el.type=type;el.value=value||'';el.placeholder=placeholder;liveFields.append(l,el);return el}
+function liveDrawFields(b={}){liveFields.innerHTML='';const t=$('liveBlockType').value;
+ if(t==='heading'||t==='text')liveField(t==='heading'?'Texte du titre':'Texte','liveText',t==='text'?'textarea':'text',b.text||'','Écris ici…');
+ if(t==='image'){liveField('Légende','liveCaption','text',b.caption||'');liveField('Photo','liveFile','file')}
+ if(t==='button'){liveField('Texte du bouton','liveLabel','text',b.label||'Prendre rendez-vous');liveField('Adresse du lien','liveUrl','url',b.url||'','https://…')}
+ if(t==='gallery'){liveField('Légende','liveCaption','text',b.caption||'');const f=liveField('Photos à ajouter','liveFiles','file');f.multiple=true;f.accept='image/jpeg,image/png,image/webp,image/gif'}
 }
-function selectBlock(i){selectedBlockIndex=i;const b=pageBlocks[i];$('blockType').value=b.type;drawFields(b);$('editorPanelTitle').textContent='Modifier l’élément '+(i+1);$('addBlock').textContent='Enregistrer les modifications';renderVisual()}
-function moveBlock(i,d){const j=i+d;if(j<0||j>=pageBlocks.length)return;[pageBlocks[i],pageBlocks[j]]=[pageBlocks[j],pageBlocks[i]];selectedBlockIndex=j;renderVisual()}
-function deleteBlock(i){if(!confirm('Supprimer cet élément ?'))return;pageBlocks.splice(i,1);selectedBlockIndex=null;drawFields();$('addBlock').textContent='Ajouter à la page';renderVisual()}
-function renderVisual(){
- $('pvTitle').textContent=$('pageTitle').value.trim()||'Titre de la page';$('pvIntro').textContent=$('pageIntro').value.trim()||'Ton introduction apparaîtra ici.';pvBlocks.innerHTML='';
- pageBlocks.forEach((b,i)=>{const box=document.createElement('div');box.className='pv-block'+(selectedBlockIndex===i?' selected':'');box.onclick=()=>selectBlock(i);
-  const tools=document.createElement('div');tools.className='pv-block-tools';const tag=document.createElement('span');tag.textContent='Élément '+(i+1);tools.append(tag);
-  [['Modifier',()=>selectBlock(i)],['↑',()=>moveBlock(i,-1)],['↓',()=>moveBlock(i,1)],['Supprimer',()=>deleteBlock(i)]].forEach(([txt,fn])=>{const bt=document.createElement('button');bt.type='button';bt.className='secondary';bt.textContent=txt;bt.onclick=e=>{e.stopPropagation();fn()};tools.append(bt)});box.append(tools);
-  let node;if(b.type==='heading'){node=document.createElement('h3');node.textContent=b.text||''}
-  if(b.type==='text'){node=document.createElement('p');node.textContent=b.text||''}
-  if(b.type==='image'){node=document.createElement('div');if(b.url){const im=document.createElement('img');im.src=b.url;im.alt=b.caption||'';node.append(im)}if(b.caption){const c=document.createElement('p');c.className='page-caption';c.textContent=b.caption;node.append(c)}}
-  if(b.type==='button'){node=document.createElement('a');node.className='btn';node.textContent=b.label||'En savoir plus';node.href=b.url||'#';node.onclick=e=>e.preventDefault()}
-  if(b.type==='gallery'){node=document.createElement('div');node.className='pv-gallery';(b.images||[]).forEach(src=>{const im=document.createElement('img');im.src=src;im.alt=b.caption||'Photo';node.append(im)});if(b.caption){const c=document.createElement('p');c.textContent=b.caption;box.append(c)}}
-  if(node)box.append(node);pvBlocks.append(box)
- });
- const add=document.createElement('button');add.type='button';add.className='pv-add';add.textContent='+ Ajouter un élément';add.onclick=()=>{$('blockType').focus();drawFields()};pvBlocks.append(add)
+function liveRender(){
+ $('liveTitle').textContent=$('visualPageTitle').value||'Titre de la page';$('liveIntro').textContent=$('visualPageIntro').value||'';liveBlocks.innerHTML='';
+ visualBlocks.forEach((b,i)=>{const wrap=document.createElement('div');wrap.className='live-block'+(i===selectedVisualBlock?' selected':'');wrap.onclick=()=>liveSelect(i);
+ const controls=document.createElement('div');controls.className='live-block-controls';
+ [['Modifier',()=>liveSelect(i)],['↑',()=>liveMove(i,-1)],['↓',()=>liveMove(i,1)],['Supprimer',()=>liveDelete(i)]].forEach(([t,fn])=>{const bt=document.createElement('button');bt.type='button';bt.className='secondary';bt.textContent=t;bt.onclick=e=>{e.stopPropagation();fn()};controls.append(bt)});wrap.append(controls);
+ if(b.type==='heading'){const h=document.createElement('h2');h.textContent=b.text||'';wrap.append(h)}
+ if(b.type==='text'){const p=document.createElement('p');p.textContent=b.text||'';wrap.append(p)}
+ if(b.type==='image'&&b.url){const im=document.createElement('img');im.src=b.url;im.alt=b.caption||'';wrap.append(im);if(b.caption){const c=document.createElement('p');c.textContent=b.caption;wrap.append(c)}}
+ if(b.type==='button'){const a=document.createElement('a');a.className='live-button';a.textContent=b.label||'En savoir plus';a.href=b.url||'#';a.onclick=e=>e.preventDefault();wrap.append(a)}
+ if(b.type==='gallery'){const g=document.createElement('div');g.className='live-gallery';(b.images||[]).forEach(src=>{const im=document.createElement('img');im.src=src;g.append(im)});wrap.append(g);if(b.caption){const c=document.createElement('p');c.textContent=b.caption;wrap.append(c)}}
+ liveBlocks.append(wrap)});
+ const add=document.createElement('button');add.type='button';add.className='live-add-block';add.textContent='+ Ajouter un élément ici';add.onclick=()=>{$('liveBlockType').focus();liveDrawFields()};liveBlocks.append(add)
 }
-function resetPageForm(){editingPageId=null;selectedBlockIndex=null;pageBlocks=[];$('pageTitle').value='';$('pageSlug').value='';$('pageSlug').dataset.edited='';$('pageIntro').value='';$('pagePublished').checked=true;$('pageMenu').checked=true;$('savePage').textContent='Enregistrer la page';$('cancelPage').classList.add('hidden');$('addBlock').textContent='Ajouter à la page';$('editorPanelTitle').textContent='Ajouter un élément';drawFields();renderVisual()}
-$('pageTitle').addEventListener('input',()=>{if(!$('pageSlug').dataset.edited)$('pageSlug').value=slug($('pageTitle').value)});$('pageIntro').addEventListener('input',renderVisual);
-$('pageSlug').addEventListener('input',()=>{$('pageSlug').dataset.edited='1'});
-$('blockType').onchange=()=>{selectedBlockIndex=null;drawFields();$('addBlock').textContent='Ajouter à la page';$('editorPanelTitle').textContent='Ajouter un élément'};
-$('clearSelection').onclick=()=>{selectedBlockIndex=null;drawFields();$('addBlock').textContent='Ajouter à la page';$('editorPanelTitle').textContent='Ajouter un élément';renderVisual()};
-$('newPage').onclick=resetPageForm;$('cancelPage').onclick=resetPageForm;
-$('addBlock').onclick=async()=>{try{const t=$('blockType').value;let b=selectedBlockIndex===null?{type:t}:{...pageBlocks[selectedBlockIndex]};b.type=t;
- if(t==='heading'||t==='text'){b.text=$('editText').value.trim();if(!b.text)throw Error('Écris le texte.')}
- if(t==='image'){const f=$('editFile').files[0];if(f)b.url=await upload(f);if(!b.url)throw Error('Choisis une photo.');b.caption=$('editCaption').value.trim()}
- if(t==='button'){b.label=$('editLabel').value.trim();b.url=$('editUrl').value.trim();if(!b.label||!/^https?:\/\//i.test(b.url))throw Error('Ajoute le texte et un lien http(s) valide.')}
- if(t==='gallery'){b.images=Array.isArray(b.images)?b.images:[];for(const f of [...$('editFiles').files])b.images.push(await upload(f));if(!b.images.length)throw Error('Choisis au moins une photo.');b.caption=$('editCaption').value.trim()}
- if(selectedBlockIndex===null)pageBlocks.push(b);else pageBlocks[selectedBlockIndex]=b;selectedBlockIndex=null;drawFields();$('addBlock').textContent='Ajouter à la page';$('editorPanelTitle').textContent='Ajouter un élément';renderVisual()
+function liveSelect(i){selectedVisualBlock=i;const b=visualBlocks[i];$('liveBlockType').value=b.type;liveDrawFields(b);$('liveEditHeading').textContent='Modifier cet élément';$('saveLiveBlock').textContent='Enregistrer cet élément';liveRender()}
+function liveMove(i,d){const j=i+d;if(j<0||j>=visualBlocks.length)return;[visualBlocks[i],visualBlocks[j]]=[visualBlocks[j],visualBlocks[i]];selectedVisualBlock=j;liveRender()}
+function liveDelete(i){if(!confirm('Supprimer cet élément ?'))return;visualBlocks.splice(i,1);selectedVisualBlock=-1;liveResetFields();liveRender()}
+function liveResetFields(){selectedVisualBlock=-1;$('liveEditHeading').textContent='Ajouter un élément';$('saveLiveBlock').textContent='Ajouter l’élément';liveDrawFields()}
+async function ensureSystemPages(){
+ const {data,error}=await db.from('pages').select('id,slug');if(error)throw error;
+ const existing=new Set((data||[]).map(p=>p.slug));
+ for(const p of systemPages){if(existing.has(p.slug))continue;
+  const blocks=[];
+  if(p.slug==='galerie')blocks.push({type:'gallery',caption:'Réalisations du shop',images:[]});
+  if(p.slug==='actualites')blocks.push({type:'text',text:'Les dernières nouvelles du shop seront publiées ici.'});
+  if(p.slug==='evenements')blocks.push({type:'text',text:'Les prochains événements seront annoncés ici.'});
+  if(p.slug==='vinted')blocks.push({type:'button',label:'Voir le dressing Vinted',url:'https://www.vinted.fr/'});
+  if(p.slug==='le-shop')blocks.push({type:'heading',text:'Du caractère. Du savoir-faire.'},{type:'text',text:"Thoma's Ink Tattoo, un lieu de création où chaque projet mérite une attention particulière."});
+  if(p.slug==='contact')blocks.push({type:'heading',text:'On parle encre ?'},{type:'text',text:'Ajoute ici les coordonnées, horaires et réseaux sociaux.'});
+  const {error:e}=await db.from('pages').insert({title:p.title,slug:p.slug,content:p.content,blocks,published:true,show_in_menu:p.show_in_menu,sort_order:systemPages.indexOf(p),updated_at:new Date().toISOString()});if(e)throw e;
+ }
+}
+async function loadVisualPages(keepSlug=null){
+ const {data,error}=await db.from('pages').select('id,title,slug,content,blocks,published,show_in_menu,sort_order').order('sort_order',{ascending:true});if(error)throw error;
+ visualPages=data||[];const sel=$('visualPageSelect');sel.innerHTML='';
+ visualPages.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.title+'  /'+p.slug;sel.append(o)});
+ const chosen=visualPages.find(p=>p.slug===keepSlug)||visualPages.find(p=>p.id===activePage?.id)||visualPages[0];if(chosen)loadVisualPage(chosen.id);
+ renderVisualPageList()
+}
+function loadVisualPage(id){const p=visualPages.find(x=>x.id===id);if(!p)return;activePage=p;selectedVisualBlock=-1;visualBlocks=Array.isArray(p.blocks)?JSON.parse(JSON.stringify(p.blocks)):[];
+ $('visualPageSelect').value=p.id;$('visualPageTitle').value=p.title||'';$('visualPageSlug').value=p.slug||'';$('visualPageIntro').value=p.content||'';$('visualPagePublished').checked=!!p.published;$('visualPageMenu').checked=!!p.show_in_menu;liveResetFields();liveRender()}
+function renderVisualPageList(){const el=$('visualPagesList');el.innerHTML='';visualPages.forEach(p=>{const row=document.createElement('div');row.className='item';const info=document.createElement('div'),strong=document.createElement('strong'),small=document.createElement('small');strong.textContent=p.title;small.textContent='/'+p.slug+' · '+(p.published?'Publiée':'Brouillon');info.append(strong,small);const bt=document.createElement('button');bt.className='secondary';bt.textContent='Modifier cette page';bt.onclick=()=>{$('visualPageSelect').value=p.id;loadVisualPage(p.id);$('pageBuilder').scrollIntoView({behavior:'smooth'})};row.append(info,bt);el.append(row)})}
+$('visualPageSelect').onchange=()=>loadVisualPage($('visualPageSelect').value);
+['visualPageTitle','visualPageIntro'].forEach(id=>$(id).addEventListener('input',liveRender));
+$('createPage').onclick=()=>{activePage=null;visualBlocks=[];$('visualPageSelect').value='';$('visualPageTitle').value='';$('visualPageSlug').value='';$('visualPageIntro').value='';$('visualPagePublished').checked=false;$('visualPageMenu').checked=true;liveResetFields();liveRender()};
+$('liveBlockType').onchange=()=>liveResetFields();
+$('cancelLiveBlock').onclick=liveResetFields;
+$('saveLiveBlock').onclick=async()=>{try{const t=$('liveBlockType').value;let b=selectedVisualBlock<0?{type:t}:{...visualBlocks[selectedVisualBlock]};b.type=t;
+ if(t==='heading'||t==='text'){b.text=$('liveText').value.trim();if(!b.text)throw Error('Ajoute un texte.')}
+ if(t==='image'){const f=$('liveFile').files[0];if(f)b.url=await upload(f);if(!b.url)throw Error('Choisis une photo.');b.caption=$('liveCaption').value.trim()}
+ if(t==='button'){b.label=$('liveLabel').value.trim();b.url=$('liveUrl').value.trim();if(!b.label||!/^https?:\/\//i.test(b.url))throw Error('Ajoute un texte et un lien http(s).')}
+ if(t==='gallery'){b.images=Array.isArray(b.images)?b.images:[];for(const f of [...$('liveFiles').files])b.images.push(await upload(f));if(!b.images.length)throw Error('Ajoute au moins une photo.');b.caption=$('liveCaption').value.trim()}
+ if(selectedVisualBlock<0)visualBlocks.push(b);else visualBlocks[selectedVisualBlock]=b;liveResetFields();liveRender()
  }catch(e){say('Erreur : '+e.message)}};
-$('savePage').onclick=()=>task(async()=>{const title=$('pageTitle').value.trim();if(!title)throw Error('Donne un titre à la page.');if(!pageBlocks.length&&!$('pageIntro').value.trim())throw Error('Ajoute une introduction ou un élément.');const slugValue=slug($('pageSlug').value.trim()||title);if(!slugValue)throw Error('Adresse invalide.');const payload={title,slug:slugValue,content:$('pageIntro').value.trim(),blocks:pageBlocks,published:$('pagePublished').checked,show_in_menu:$('pageMenu').checked,sort_order:0,updated_at:new Date().toISOString()};const q=editingPageId?await db.from('pages').update(payload).eq('id',editingPageId):await db.from('pages').insert(payload);if(q.error)throw q.error;resetPageForm();await loadPages();say('Page enregistrée : /'+slugValue)});
-async function loadPages(){const el=$('pagesList');el.innerHTML='';const {data,error}=await db.from('pages').select('id,title,slug,content,blocks,published,show_in_menu,sort_order').order('sort_order',{ascending:true});if(error){say('Pages : '+error.message);return}if(!data?.length){el.textContent='Aucune page personnalisée.';return}
- data.forEach(p=>{const d=document.createElement('div');d.className='item';const info=document.createElement('div'),b=document.createElement('strong'),sm=document.createElement('small');b.textContent=p.title;sm.textContent='/'+p.slug+' · '+(p.published?'Publiée':'Brouillon')+' · '+(p.show_in_menu?'Dans le menu':'Masquée');info.append(b,sm);if(p.published){const a=document.createElement('a');a.href='/'+p.slug;a.target='_blank';a.textContent='Voir la page';a.style.marginLeft='10px';info.append(a)}
- const actions=document.createElement('div');actions.className='actions';const edit=document.createElement('button');edit.className='secondary';edit.textContent='Ouvrir dans l’éditeur';edit.onclick=()=>{editingPageId=p.id;$('pageTitle').value=p.title||'';$('pageSlug').value=p.slug||'';$('pageSlug').dataset.edited='1';$('pageIntro').value=p.content||'';$('pagePublished').checked=!!p.published;$('pageMenu').checked=!!p.show_in_menu;pageBlocks=Array.isArray(p.blocks)?p.blocks:[];selectedBlockIndex=null;$('savePage').textContent='Enregistrer les modifications';$('cancelPage').classList.remove('hidden');drawFields();renderVisual();$('pageBuilder').scrollIntoView({behavior:'smooth'})};
- const del=document.createElement('button');del.className='danger';del.textContent='Supprimer';del.onclick=async()=>{if(!confirm('Supprimer cette page ?'))return;await task(async()=>{const {error}=await db.from('pages').delete().eq('id',p.id);if(error)throw error;await loadPages()})};actions.append(edit,del);d.append(info,actions);el.append(d)});
-}
-drawFields();renderVisual();
-const oldRefresh=refresh;refresh=async()=>{await oldRefresh();if(!$('app').classList.contains('hidden'))await loadPages()};
+$('saveVisualPage').onclick=()=>task(async()=>{const title=$('visualPageTitle').value.trim(),slug=slugify($('visualPageSlug').value||title);if(!title||!slug)throw Error('Ajoute un titre et une adresse.');const payload={title,slug,content:$('visualPageIntro').value.trim(),blocks:visualBlocks,published:$('visualPagePublished').checked,show_in_menu:$('visualPageMenu').checked,sort_order:activePage?.sort_order??0,updated_at:new Date().toISOString()};
+ let result;if(activePage){result=await db.from('pages').update(payload).eq('id',activePage.id).select().single()}else{result=await db.from('pages').insert(payload).select().single()}if(result.error)throw result.error;await loadVisualPages(slug);say('Page enregistrée. Ouvre /'+slug+' pour voir le résultat public.')});
+liveResetFields();liveRender();
+const oldRefresh=refresh;refresh=async()=>{await oldRefresh();if(!$('app').classList.contains('hidden')){await ensureSystemPages();await loadVisualPages(activePage?.slug)}};
 refresh();
 </script></body></html>
