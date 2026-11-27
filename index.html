@@ -50,6 +50,7 @@ body.visual-edit-mode .nav a{cursor:pointer}
 .record-body p { color:#c9bea9; font-size:13px; line-height:1.65; margin:0; white-space:pre-line; }
 .record-location { color:#e2cba1; font-size:12px; margin-top:14px; letter-spacing:.4px; }
 @media(max-width:760px) { #newsGrid,#eventsGrid { grid-template-columns:1fr; } .record-body { min-height:0; padding:19px; } .record-body h3 { font-size:23px; } }
+.record-open{display:inline-flex;margin-top:auto;padding-top:18px;color:#f0b0a6;font:600 12px var(--display);letter-spacing:1.6px;text-transform:uppercase}.record-open:hover{color:#fff}.record-detail{max-width:900px;margin:0 auto;background:linear-gradient(155deg,#28231e,#191715);border:1px solid rgba(225,205,169,.24);box-shadow:0 18px 42px #0005;overflow:hidden}.record-detail-media{background:#100f0e;padding:18px;text-align:center;border-bottom:3px solid var(--red)}.record-detail-media img{display:block;max-width:100%;max-height:650px;width:auto;height:auto;object-fit:contain;margin:auto}.record-detail-body{padding:clamp(22px,5vw,48px)}.record-detail-body h2{font:600 clamp(34px,6vw,54px)/1.05 var(--display);text-transform:uppercase;margin:14px 0}.record-detail-text{white-space:pre-wrap;color:#d2c6b1;line-height:1.8;margin-top:22px}.record-detail-location{color:#e2cba1;margin-top:18px}
 
 </style></head>
 <body><div class="topline"></div>
@@ -165,7 +166,8 @@ function renderRecords(container, rows, kind) {
     return;
   }
   rows.forEach(item => {
-    const card = make('article', kind === 'gallery' ? 'tile' : `news-card record-card record-${kind}`);
+    const card = make(kind === 'gallery' ? 'article' : 'a', kind === 'gallery' ? 'tile' : `news-card record-card record-${kind}`);
+    if (kind !== 'gallery' && item.id) card.href = '/' + (kind === 'news' ? 'actualites' : 'evenements') + '/' + encodeURIComponent(item.id);
     if (kind === 'gallery') {
       const img = make('img'); img.src = safeUrl(item.image_url); img.alt = item.title || 'Tatouage'; img.loading = 'lazy';
       const label = make('div', 'tile-label');
@@ -197,6 +199,7 @@ function renderRecords(container, rows, kind) {
       const description = item.excerpt || item.description || item.content || '';
       if (description) body.append(make('p', '', description));
       if (kind === 'events' && item.location) body.append(make('div', 'record-location', '⌖ ' + item.location));
+      if (item.id && (kind === 'news' || kind === 'events')) body.append(make('span', 'record-open', kind === 'news' ? 'Lire l’actualité →' : 'Voir l’événement →'));
       card.append(body);
     }
     container.append(card);
@@ -238,11 +241,11 @@ async function addCoreContent(slug, container) {
     else renderGallery(grid, data, filters);
     container.append(filters, grid);
   } else if (slug === 'actualites') {
-    const { data, error } = await db.from('news').select('title,excerpt,content,image_url,published_at').eq('published', true).order('published_at', { ascending: false });
+    const { data, error } = await db.from('news').select('id,title,excerpt,content,image_url,published_at').eq('published', true).order('published_at', { ascending: false });
     if (error) console.warn('Actualités :', error.message);
     else { const grid = make('div', 'grid3'); renderRecords(grid, data, 'news'); container.append(grid); }
   } else if (slug === 'evenements') {
-    const { data, error } = await db.from('events').select('title,description,event_date,poster_url,location').eq('published', true).order('event_date', { ascending: true });
+    const { data, error } = await db.from('events').select('id,title,description,event_date,poster_url,location').eq('published', true).order('event_date', { ascending: true });
     if (error) console.warn('Événements :', error.message);
     else { const grid = make('div', 'grid3'); renderRecords(grid, data, 'events'); container.append(grid); }
   }
@@ -292,7 +295,7 @@ async function loadHomeNewsAndEvents() {
   const eventsTarget = document.getElementById('eventsGrid');
   if (newsTarget) {
     const { data, error } = await db.from('news')
-      .select('title,excerpt,content,image_url,published_at')
+      .select('id,title,excerpt,content,image_url,published_at')
       .eq('published', true).order('published_at', { ascending: false }).limit(3);
     if (error) {
       console.warn('Chargement des actualités :', error.message);
@@ -302,7 +305,7 @@ async function loadHomeNewsAndEvents() {
   }
   if (eventsTarget) {
     const { data, error } = await db.from('events')
-      .select('title,description,event_date,poster_url,location')
+      .select('id,title,description,event_date,poster_url,location')
       .eq('published', true).order('event_date', { ascending: true }).limit(3);
     if (error) {
       console.warn('Chargement des événements :', error.message);
@@ -312,8 +315,44 @@ async function loadHomeNewsAndEvents() {
   }
 }
 
+async function renderPublicationDetail(kind, id, container) {
+  const table = kind === 'news' ? 'news' : 'events';
+  const columns = kind === 'news'
+    ? 'id,title,excerpt,content,image_url,published_at'
+    : 'id,title,description,event_date,poster_url,location';
+  const { data: item, error } = await db.from(table).select(columns).eq('id', id).eq('published', true).maybeSingle();
+  if (error || !item) {
+    container.append(make('div', 'empty dark', 'Cette publication est introuvable ou n’est plus publiée.'));
+    return;
+  }
+  const detail = make('article', 'record-detail');
+  const imageUrl = kind === 'news' ? item.image_url : item.poster_url;
+  if (imageUrl) {
+    const media = make('div', 'record-detail-media');
+    const img = make('img'); img.src = safeUrl(imageUrl); img.alt = item.title || ''; img.loading = 'eager';
+    media.append(img); detail.append(media);
+  }
+  const body = make('div', 'record-detail-body');
+  const rawDate = kind === 'news' ? item.published_at : item.event_date;
+  if (rawDate) {
+    const parsed = new Date(rawDate);
+    if (!Number.isNaN(parsed.getTime())) {
+      let dateText = parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+      if (kind === 'events' && (parsed.getHours() || parsed.getMinutes())) dateText += ' · ' + parsed.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      body.append(make('div', 'date', dateText));
+    }
+  }
+  body.append(make('h2', '', item.title || 'Sans titre'));
+  if (kind === 'events' && item.location) body.append(make('div', 'record-detail-location', '⌖ ' + item.location));
+  const textContent = kind === 'news' ? (item.content || item.excerpt || '') : (item.description || '');
+  if (textContent) body.append(make('div', 'record-detail-text', textContent));
+  detail.append(body); container.append(detail);
+}
+
 async function renderRoute() {
-  const path = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ''));
+  const parts = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, '')).split('/').filter(Boolean);
+  const path = parts[0] || '';
+  const detailId = parts.length > 1 ? parts.slice(1).join('/') : null;
   const main = document.getElementById('home');
   if (!main || !path) return;
   const page = publicPages.find(p => p.slug === path);
@@ -332,9 +371,11 @@ async function renderRoute() {
   heading.append(left); wrap.append(heading);
   if (page?.content) wrap.append(make('p', 'section-intro dark-intro', page.content));
   if (page && Array.isArray(page.blocks)) page.blocks.forEach(b => renderBlock(wrap, b));
-  if (core?.[2]) await addCoreContent(path, wrap);
+  if (detailId && (path === 'actualites' || path === 'evenements')) await renderPublicationDetail(path === 'actualites' ? 'news' : 'events', detailId, wrap);
+  else if (core?.[2]) await addCoreContent(path, wrap);
   else if (!page && core) renderCoreFallback(path, wrap);
-  const back = make('a', 'btn custom-link', '← Retour à l’accueil'); back.href = '/'; wrap.append(back);
+  const backLabel = detailId ? (path === 'actualites' ? '← Retour aux actualités' : '← Retour aux événements') : '← Retour à l’accueil';
+  const back = make('a', 'btn custom-link', backLabel); back.href = detailId ? '/' + path : '/'; wrap.append(back);
   section.append(wrap); main.append(section);
   document.title = title + " — Thoma's Ink Tattoo";
 }
@@ -357,7 +398,7 @@ document.addEventListener('click', async event => {
   const link = event.target.closest('a[href]');
   if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const url = new URL(link.href, location.href);
-  if (url.origin !== location.origin || !/^\/(galerie|actualites|evenements|vinted|le-shop|contact)(\/)?$/.test(url.pathname)) return;
+  if (url.origin !== location.origin || !/^\/(galerie|actualites|evenements|vinted|le-shop|contact)(\/[^/]+)?\/?$/.test(url.pathname)) return;
   event.preventDefault();
   history.pushState({}, '', url.pathname);
   await renderRoute();
