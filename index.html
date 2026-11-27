@@ -18,12 +18,30 @@ body.visual-edit-mode [data-live-edit-key]:hover{outline:2px dashed #d45b50!impo
 body.visual-edit-mode [data-live-edit-key].live-edit-selected{outline:3px solid #e0a34a!important;outline-offset:3px!important}
 body.visual-edit-mode .nav a{cursor:pointer}
 .gallery-lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}.gallery-lightbox.open{display:flex}.gallery-lightbox img{max-width:min(1100px,95vw);max-height:90vh;object-fit:contain;border:5px solid var(--paper)}
+
+.gallery-filters{display:flex;gap:9px;flex-wrap:wrap;margin:-12px 0 24px}
+.gallery-filter{border:1px solid currentColor;background:transparent;color:inherit;padding:8px 14px;font:600 11px var(--display);letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.18s}
+.gallery-filter:hover,.gallery-filter.active{background:var(--red);border-color:var(--red);color:#fff}
+.gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}
+.gallery-grid .tile{min-height:0;aspect-ratio:4/5;border:0;background:#211e1a;box-shadow:0 8px 24px #0002;transition:transform .2s,box-shadow .2s}
+.gallery-grid .tile:hover{transform:translateY(-4px);box-shadow:0 14px 30px #0003}
+.gallery-grid .tile img{height:100%;min-height:0;object-fit:cover;filter:none;transition:transform .35s}
+.gallery-grid .tile:hover img{transform:scale(1.035)}
+.gallery-grid .tile-label{padding:46px 17px 15px;font-size:18px}
+.gallery-grid .tile-label small{display:block;font:11px var(--body);letter-spacing:1px;text-transform:none;color:#e3d5b8;margin-top:3px}
+.gallery-lightbox{flex-direction:column;gap:14px;cursor:zoom-out}
+.gallery-lightbox img{max-width:min(1100px,92vw);max-height:78vh}
+.gallery-lightbox-caption{max-width:900px;text-align:center;color:var(--paper);font-size:14px}
+.gallery-lightbox-caption strong{display:block;font:22px var(--display);text-transform:uppercase}
+.gallery-lightbox-caption span{display:block;color:var(--muted);margin-top:3px}
+@media(max-width:800px){.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.gallery-grid{grid-template-columns:1fr 1fr;gap:10px}.gallery-grid .tile{aspect-ratio:3/4}.gallery-grid .tile-label{font-size:14px;padding:35px 10px 10px}.gallery-filters{gap:6px}.gallery-filter{padding:7px 10px;font-size:10px}}
 </style></head>
 <body><div class="topline"></div>
 <header class="nav"><div class="wrap navin"><a class="brand" href="/"><img src="assets/logo-thomas-ink.jpg" alt="Logo Thoma's Ink Tattoo"><span>Thoma's Ink<small>Studio de tatouage</small></span></a><nav class="links"><a href="/galerie">Galerie</a><a href="/actualites">Actualités</a><a href="/evenements">Événements</a><a href="/vinted">Vinted</a><a href="/le-shop">Le shop</a><span id="customNav"></span><a href="/contact">Contact</a></nav><a class="nav-cta" href="/contact">Nous contacter</a></div></header>
 <main id="home"><section class="hero"><div class="wrap hero-grid"><div class="hero-copy"><div class="eyebrow">Studio de tatouage · Art & passion</div><h1>Ink with <span>attitude.</span></h1><p>Bienvenue chez Thoma's Ink Tattoo. Un univers dédié à l'encre, au dessin et à la passion du tatouage. Découvrez le travail du shop, les nouveautés et les projets en cours.</p><div class="hero-actions"><a class="btn" href="/galerie">Voir les tatouages</a><a class="btn outline" href="/contact">Prendre contact</a></div></div><div class="hero-mark"><img src="assets/logo-thomas-ink.jpg" alt="Emblème officiel Thoma's Ink Tattoo"></div></div></section>
 <div class="ticker"><span>✦ Traditional tattoo</span><span>✦ Custom work</span><span>✦ Flash & projects</span><span>✦ Thoma's Ink Tattoo</span><span>✦ Traditional tattoo</span></div>
-<section class="section paper" id="galerie"><div class="wrap"><div class="section-head"><div><div class="kicker">L'encre en images</div><h2>La galerie</h2></div><p class="section-intro">Une sélection de réalisations du shop. Les photos pourront être ajoutées et organisées depuis l'espace administration.</p></div><div class="grid3" id="galleryGrid"><div class="tile"><div class="placeholder"><div><b>Vos tatouages</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Réalisations</div></div><div class="tile"><div class="placeholder"><div><b>Vos créations</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Flash & custom</div></div><div class="tile"><div class="placeholder"><div><b>Votre univers</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Le détail du trait</div></div></div></div></section>
+<section class="section paper" id="galerie"><div class="wrap"><div class="section-head"><div><div class="kicker">L'encre en images</div><h2>La galerie</h2></div><p class="section-intro">Une sélection de réalisations du shop. Chaque photo est ajoutée et organisée depuis l’espace administration.</p></div><div id="homeGalleryFilters" class="gallery-filters"></div><div class="grid3 gallery-grid" id="galleryGrid"><div class="tile"><div class="placeholder"><div><b>Vos tatouages</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Réalisations</div></div><div class="tile"><div class="placeholder"><div><b>Vos créations</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Flash & custom</div></div><div class="tile"><div class="placeholder"><div><b>Votre univers</b><small>PHOTO À AJOUTER</small></div></div><div class="tile-label">Le détail du trait</div></div></div></div></section>
 <section class="section" id="actualites"><div class="wrap"><div class="section-head"><div><div class="kicker">Au fil de l'aiguille</div><h2>Les actualités</h2></div><p class="section-intro dark-intro">Flash days, guests, disponibilités et nouvelles du shop : retrouvez ici les dernières informations.</p></div><div class="grid3" id="newsGrid"><div class="news-card"><div class="date">À venir</div><h3>Prochaine actualité</h3><p>Les prochaines nouvelles du shop seront publiées ici.</p><a href="/contact">Restez connectés ↗</a></div><div class="news-card"><div class="date">Flash day</div><h3>Événements & flash</h3><p>Retrouvez bientôt les dates et informations des événements.</p><a href="/contact">Nous contacter ↗</a></div><div class="news-card"><div class="date">Le shop</div><h3>Nouveautés</h3><p>Les projets, les guests et les annonces du studio.</p><a href="/contact">Suivre le shop ↗</a></div></div></div></section>
 <section class="section" id="evenements"><div class="wrap"><div class="section-head"><div><div class="kicker">À vos agendas</div><h2>Les événements</h2></div><p class="section-intro dark-intro">Flash days, guest artists et rendez-vous du shop. Les dates publiées depuis l’administration apparaîtront ici.</p></div><div class="grid3" id="eventsGrid"><div class="news-card"><div class="date">À venir</div><h3>Prochain rendez-vous</h3><p>Les prochains événements du shop seront annoncés ici.</p></div></div></div></section>
 <section class="section paper" id="vinted"><div class="wrap"><div class="section-head"><div><div class="kicker">Le shop en ligne</div><h2>Retrouvez-nous sur Vinted</h2></div><p class="section-intro">Retrouvez ici les articles mis en vente et accédez directement au dressing Vinted du shop.</p></div><div class="artist-band"><div class="artist-art"><span>SHOP!</span></div><div class="artist-copy"><div class="kicker">Vintage · vêtements · accessoires</div><h2>La boutique en ligne</h2><p>Le lien vers le dressing Vinted sera renseigné dans l’espace administration. Tu pourras le modifier à tout moment.</p><a class="btn" id="vintedButton" href="#" target="_blank" rel="noopener">Voir le dressing Vinted</a></div></div></div></section>
@@ -134,13 +152,16 @@ function renderRecords(container, rows, kind) {
   rows.forEach(item => {
     const card = make('article', kind === 'gallery' ? 'tile' : 'news-card');
     if (kind === 'gallery') {
-      const img = make('img'); img.src = safeUrl(item.image_url); img.alt = item.title || 'Tatouage';
-      card.append(img, make('div', 'tile-label', item.title || 'Réalisation'));
+      const img = make('img'); img.src = safeUrl(item.image_url); img.alt = item.title || 'Tatouage'; img.loading = 'lazy';
+      const label = make('div', 'tile-label');
+      label.append(make('span', '', item.title || 'Réalisation'));
+      if (item.category) label.append(make('small', '', item.category));
+      card.append(img, label);
       card.style.cursor = 'zoom-in';
-      card.addEventListener('click', () => openGalleryImage(img.src, img.alt));
+      card.addEventListener('click', () => openGalleryImage(img.src, img.alt, item.title || 'Réalisation', item.description || '', item.category || ''));
     } else {
       const imageUrl = kind === 'events' ? item.poster_url : item.image_url;
-      if (imageUrl) { const img = make('img', 'event-poster'); img.src = safeUrl(imageUrl); img.alt = item.title || ''; card.append(img); }
+      if (imageUrl) { const img = make('img', 'event-poster'); img.src = safeUrl(imageUrl); img.alt = item.title || ''; img.loading = 'lazy'; card.append(img); }
       const date = item.event_date ? new Date(item.event_date).toLocaleString('fr-FR') : (item.published_at ? new Date(item.published_at).toLocaleDateString('fr-FR') : 'THOMA’S INK');
       card.append(make('div', 'date', date), make('h3', '', item.title || ''), make('p', '', item.excerpt || item.description || item.content || ''));
     }
@@ -148,13 +169,40 @@ function renderRecords(container, rows, kind) {
   });
 }
 
+function renderGallery(container, rows, filtersContainer) {
+  container.innerHTML = '';
+  if (!rows || !rows.length) {
+    container.append(make('div', 'empty dark', 'Les photos seront bientôt ajoutées.'));
+    if (filtersContainer) filtersContainer.innerHTML = '';
+    return;
+  }
+  const categories = [...new Set(rows.map(row => (row.category || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+  let active = 'Toutes';
+  const draw = () => {
+    const filtered = active === 'Toutes' ? rows : rows.filter(row => (row.category || '').trim() === active);
+    renderRecords(container, filtered, 'gallery');
+    if (filtersContainer) filtersContainer.querySelectorAll('.gallery-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.category === active));
+  };
+  if (filtersContainer) {
+    filtersContainer.innerHTML = '';
+    ['Toutes', ...categories].forEach(category => {
+      const btn = make('button', 'gallery-filter' + (category === active ? ' active' : ''), category);
+      btn.type = 'button'; btn.dataset.category = category;
+      btn.addEventListener('click', () => { active = category; draw(); });
+      filtersContainer.append(btn);
+    });
+  }
+  draw();
+}
+
 async function addCoreContent(slug, container) {
   if (slug === 'galerie') {
-    const { data, error } = await db.from('gallery').select('title,image_url,sort_order').eq('published', true).order('sort_order', { ascending: true });
-    const grid = make('div', 'grid3');
+    const { data, error } = await db.from('gallery').select('title,description,category,image_url,sort_order').eq('published', true).order('sort_order', { ascending: true });
+    const filters = make('div', 'gallery-filters');
+    const grid = make('div', 'grid3 gallery-grid');
     if (error) { console.warn('Galerie :', error.message); grid.append(make('div', 'empty dark', 'Impossible de charger les photos pour le moment.')); }
-    else renderRecords(grid, data, 'gallery');
-    container.append(grid);
+    else renderGallery(grid, data, filters);
+    container.append(filters, grid);
   } else if (slug === 'actualites') {
     const { data, error } = await db.from('news').select('title,excerpt,content,image_url,published_at').eq('published', true).order('published_at', { ascending: false });
     if (error) console.warn('Actualités :', error.message);
@@ -195,26 +243,14 @@ async function loadHomeGallery() {
   const target = document.getElementById('galleryGrid');
   if (!target) return;
   const { data, error } = await db.from('gallery')
-    .select('title,image_url,sort_order,published')
+    .select('title,description,category,image_url,sort_order,published')
     .eq('published', true).order('sort_order', { ascending: true });
   if (error) {
     console.warn('Chargement de la galerie :', error.message);
     target.innerHTML = '<div class="empty">La galerie est momentanément indisponible.</div>';
     return;
   }
-  target.innerHTML = '';
-  if (!data?.length) {
-    target.innerHTML = '<div class="empty">Les photos seront bientôt ajoutées.</div>';
-    return;
-  }
-  data.slice(0, 6).forEach(item => {
-    const card = make('article', 'tile');
-    const img = make('img'); img.src = safeUrl(item.image_url); img.alt = item.title || 'Tatouage';
-    card.append(img, make('div', 'tile-label', item.title || 'Réalisation'));
-    card.style.cursor = 'zoom-in';
-    card.addEventListener('click', () => openGalleryImage(img.src, img.alt));
-    target.append(card);
-  });
+  renderGallery(target, (data || []).slice(0, 6), document.getElementById('homeGalleryFilters'));
 }
 
 async function renderRoute() {
@@ -267,15 +303,23 @@ document.addEventListener('click', async event => {
 });
 window.addEventListener('popstate', () => { renderRoute(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-function openGalleryImage(src, alt) {
+function openGalleryImage(src, alt, title = '', description = '', category = '') {
   let overlay = document.getElementById('galleryLightbox');
   if (!overlay) {
     overlay = make('div', 'gallery-lightbox'); overlay.id = 'galleryLightbox';
-    overlay.append(make('img'));
+    const image = make('img');
+    const caption = make('div', 'gallery-lightbox-caption'); caption.id = 'galleryLightboxCaption';
+    overlay.append(image, caption);
     overlay.addEventListener('click', () => overlay.classList.remove('open'));
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') overlay.classList.remove('open'); });
     document.body.append(overlay);
   }
   const image = overlay.querySelector('img'); image.src = src; image.alt = alt || 'Tatouage';
+  const caption = overlay.querySelector('#galleryLightboxCaption');
+  caption.innerHTML = '';
+  if (title) caption.append(make('strong', '', title));
+  if (category) caption.append(make('span', '', category));
+  if (description) caption.append(make('span', '', description));
   overlay.classList.add('open');
 }
 
