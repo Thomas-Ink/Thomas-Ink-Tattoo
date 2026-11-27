@@ -52,6 +52,14 @@ body.visual-edit-mode .nav a{cursor:pointer}
 @media(max-width:760px) { #newsGrid,#eventsGrid { grid-template-columns:1fr; } .record-body { min-height:0; padding:19px; } .record-body h3 { font-size:23px; } }
 .record-open{display:inline-flex;margin-top:auto;padding-top:18px;color:#f0b0a6;font:600 12px var(--display);letter-spacing:1.6px;text-transform:uppercase}.record-open:hover{color:#fff}.record-detail{max-width:900px;margin:0 auto;background:linear-gradient(155deg,#28231e,#191715);border:1px solid rgba(225,205,169,.24);box-shadow:0 18px 42px #0005;overflow:hidden}.record-detail-media{background:#100f0e;padding:18px;text-align:center;border-bottom:3px solid var(--red)}.record-detail-media img{display:block;max-width:100%;max-height:650px;width:auto;height:auto;object-fit:contain;margin:auto}.record-detail-body{padding:clamp(22px,5vw,48px)}.record-detail-body h2{font:600 clamp(34px,6vw,54px)/1.05 var(--display);text-transform:uppercase;margin:14px 0}.record-detail-text{white-space:pre-wrap;color:#d2c6b1;line-height:1.8;margin-top:22px}.record-detail-location{color:#e2cba1;margin-top:18px}
 
+
+.artist-profiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:28px}
+.artist-profile{background:#211e1a;border:1px solid rgba(23,21,19,.2);color:#eee3ca;overflow:hidden}
+.artist-profile img{width:100%;height:280px;object-fit:cover;display:block;background:#30251f}
+.artist-profile-body{padding:20px}.artist-profile h3{font:600 25px Oswald,sans-serif;text-transform:uppercase;margin:0 0 5px}
+.artist-profile .role{color:#d28b82;font:12px Oswald,sans-serif;letter-spacing:2px;text-transform:uppercase}
+.artist-profile p{color:#c6baa4;font-size:13px;line-height:1.65}.artist-profile .styles{font-size:11px;color:#d8c8a7;letter-spacing:1px;text-transform:uppercase}
+.artist-profile a{display:inline-block;margin-top:8px;color:#e6b1a8;font:12px Oswald,sans-serif;letter-spacing:1px;text-transform:uppercase}
 </style></head>
 <body><div class="topline"></div>
 <header class="nav"><div class="wrap navin"><a class="brand" href="/"><img src="assets/logo-thomas-ink.jpg" alt="Logo Thoma's Ink Tattoo"><span>Thoma's Ink<small>Studio de tatouage</small></span></a><nav class="links"><a href="/galerie">Galerie</a><a href="/actualites">Actualités</a><a href="/evenements">Événements</a><a href="/vinted">Vinted</a><a href="/le-shop">Le shop</a><span id="customNav"></span><a href="/contact">Contact</a></nav><a class="nav-cta" href="/contact">Nous contacter</a></div></header>
@@ -61,7 +69,7 @@ body.visual-edit-mode .nav a{cursor:pointer}
 <section class="section" id="actualites"><div class="wrap"><div class="section-head"><div><div class="kicker">Au fil de l'aiguille</div><h2>Les actualités</h2></div><p class="section-intro dark-intro">Flash days, guests, disponibilités et nouvelles du shop : retrouvez ici les dernières informations.</p></div><div class="grid3" id="newsGrid"><div class="news-card"><div class="date">À venir</div><h3>Prochaine actualité</h3><p>Les prochaines nouvelles du shop seront publiées ici.</p><a href="/contact">Restez connectés ↗</a></div><div class="news-card"><div class="date">Flash day</div><h3>Événements & flash</h3><p>Retrouvez bientôt les dates et informations des événements.</p><a href="/contact">Nous contacter ↗</a></div><div class="news-card"><div class="date">Le shop</div><h3>Nouveautés</h3><p>Les projets, les guests et les annonces du studio.</p><a href="/contact">Suivre le shop ↗</a></div></div></div></section>
 <section class="section" id="evenements"><div class="wrap"><div class="section-head"><div><div class="kicker">À vos agendas</div><h2>Les événements</h2></div><p class="section-intro dark-intro">Flash days, guest artists et rendez-vous du shop. Les dates publiées depuis l’administration apparaîtront ici.</p></div><div class="grid3" id="eventsGrid"><div class="news-card"><div class="date">À venir</div><h3>Prochain rendez-vous</h3><p>Les prochains événements du shop seront annoncés ici.</p></div></div></div></section>
 <section class="section paper" id="vinted"><div class="wrap"><div class="section-head"><div><div class="kicker">Le shop en ligne</div><h2>Retrouvez-nous sur Vinted</h2></div><p class="section-intro">Retrouvez ici les articles mis en vente et accédez directement au dressing Vinted du shop.</p></div><div class="artist-band"><div class="artist-art"><span>SHOP!</span></div><div class="artist-copy"><div class="kicker">Vintage · vêtements · accessoires</div><h2>La boutique en ligne</h2><p>Le lien vers le dressing Vinted sera renseigné dans l’espace administration. Tu pourras le modifier à tout moment.</p><a class="btn" id="vintedButton" href="#" target="_blank" rel="noopener">Voir le dressing Vinted</a></div></div></div></section>
-<section class="section paper" id="artiste"><div class="wrap artist-band"><div class="artist-art"><span>INK!</span></div><div class="artist-copy"><div class="kicker">L'esprit du shop</div><h2>Du caractère.<br>Du savoir-faire.</h2><p>Thoma's Ink Tattoo, c'est un lieu de création où chaque projet mérite une attention particulière. Cette rubrique pourra accueillir la présentation du tatoueur, ses spécialités, son parcours et les artistes invités.</p><a class="btn" href="/contact">Parler de votre projet</a></div></div></section>
+<section class="section paper" id="artiste"><div class="wrap"><div class="section-head"><div><div class="kicker">L'esprit du shop</div><h2>Les artistes</h2></div><p class="section-intro">Découvrez les tatoueurs et artistes invités de Thoma's Ink Tattoo.</p></div><div id="artistProfiles" class="artist-profiles"><div class="empty">Les profils des artistes seront affichés ici.</div></div></div></section>
 <section class="section" id="contact"><div class="wrap"><div class="section-head"><div><div class="kicker">On parle encre ?</div><h2>Contact & infos</h2></div><p class="section-intro dark-intro">Retrouvez les coordonnées du shop et ses réseaux. Les liens et informations sont à compléter dans l'administration.</p></div><div class="contact-grid"><div><div class="contact-box"><b>Adresse du shop</b><p>Adresse à compléter</p></div><div class="contact-box"><b>Horaires</b><p>Horaires à compléter</p></div><div class="contact-box"><b>Téléphone / e-mail</b><p>Coordonnées à compléter</p></div></div><div><div class="contact-box"><b>Suivre Thoma's Ink</b><p>Retrouvez les photos, stories et actualités sur les réseaux.</p><div class="socials" id="socialLinks"><a href="#" aria-label="Instagram">Instagram · à ajouter</a><a href="#" aria-label="Facebook">Facebook · à ajouter</a></div></div><div class="contact-box"><b>Une idée de tatouage ?</b><p>Contactez le shop pour échanger sur votre projet.</p><a class="btn" href="/contact">Coordonnées à venir</a></div></div></div></div></section><div id="customSections"></div></main>
 <footer class="footer"><div class="wrap footerin"><div>© <span id="year"></span> THOMA'S INK TATTOO · TOUS DROITS RÉSERVÉS</div><div>ART · INK · PASSION</div></div></footer>
 
@@ -380,6 +388,28 @@ async function renderRoute() {
   document.title = title + " — Thoma's Ink Tattoo";
 }
 
+
+async function loadArtistProfiles(){
+ const target=document.getElementById('artistProfiles');if(!target)return;
+ const {data,error}=await db.from('site_settings').select('setting_value').eq('setting_key','artists_profiles').maybeSingle();
+ if(error){console.warn('Profils artistes indisponibles :',error.message);return}
+ let profiles=data?.setting_value||[];if(typeof profiles==='string'){try{profiles=JSON.parse(profiles)}catch{profiles=[]}}
+ profiles=Array.isArray(profiles)?profiles.filter(a=>a&&a.published!==false):[];
+ profiles.sort((a,b)=>(a.order||0)-(b.order||0));target.innerHTML='';
+ if(!profiles.length){target.innerHTML='<div class="empty">Les artistes du shop seront bientôt présentés ici.</div>';return}
+ profiles.forEach(a=>{
+  const card=document.createElement('article');card.className='artist-profile';
+  if(a.photo){const img=document.createElement('img');img.src=a.photo;img.alt=a.name||'Artiste';img.loading='lazy';card.append(img)}
+  const body=document.createElement('div');body.className='artist-profile-body';
+  const role=document.createElement('div');role.className='role';role.textContent=a.role||'Artiste';body.append(role);
+  const name=document.createElement('h3');name.textContent=a.name||'';body.append(name);
+  if(a.styles){const styles=document.createElement('div');styles.className='styles';styles.textContent=a.styles;body.append(styles)}
+  if(a.bio){const bio=document.createElement('p');bio.textContent=a.bio;body.append(bio)}
+  if(a.instagram){const link=document.createElement('a');link.href=a.instagram;link.target='_blank';link.rel='noopener';link.textContent='Instagram ↗';body.append(link)}
+  card.append(body);target.append(card)
+ })
+}
+
 async function showPages() {
   const { data, error } = await db.from('pages')
     .select('title,slug,content,blocks,published,show_in_menu,sort_order')
@@ -391,6 +421,7 @@ async function showPages() {
   if (!location.pathname.replace(/^\/+|\/+$/g, '')) {
     await loadHomeGallery();
     await loadHomeNewsAndEvents();
+    await loadArtistProfiles();
   }
 }
 
