@@ -253,6 +253,31 @@ async function loadHomeGallery() {
   renderGallery(target, (data || []).slice(0, 6), document.getElementById('homeGalleryFilters'));
 }
 
+async function loadHomeNewsAndEvents() {
+  const newsTarget = document.getElementById('newsGrid');
+  const eventsTarget = document.getElementById('eventsGrid');
+  if (newsTarget) {
+    const { data, error } = await db.from('news')
+      .select('title,excerpt,content,image_url,published_at')
+      .eq('published', true).order('published_at', { ascending: false }).limit(3);
+    if (error) {
+      console.warn('Chargement des actualités :', error.message);
+      newsTarget.innerHTML = '';
+      newsTarget.append(make('div', 'empty dark', 'Les actualités sont momentanément indisponibles.'));
+    } else renderRecords(newsTarget, data || [], 'news');
+  }
+  if (eventsTarget) {
+    const { data, error } = await db.from('events')
+      .select('title,description,event_date,poster_url,location')
+      .eq('published', true).order('event_date', { ascending: true }).limit(3);
+    if (error) {
+      console.warn('Chargement des événements :', error.message);
+      eventsTarget.innerHTML = '';
+      eventsTarget.append(make('div', 'empty dark', 'Les événements sont momentanément indisponibles.'));
+    } else renderRecords(eventsTarget, data || [], 'events');
+  }
+}
+
 async function renderRoute() {
   const path = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ''));
   const main = document.getElementById('home');
@@ -288,7 +313,10 @@ async function showPages() {
   publicPages = data || [];
   buildNavigation();
   await renderRoute();
-  if (!location.pathname.replace(/^\/+|\/+$/g, '')) await loadHomeGallery();
+  if (!location.pathname.replace(/^\/+|\/+$/g, '')) {
+    await loadHomeGallery();
+    await loadHomeNewsAndEvents();
+  }
 }
 
 document.addEventListener('click', async event => {
