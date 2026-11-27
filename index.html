@@ -36,6 +36,21 @@ body.visual-edit-mode .nav a{cursor:pointer}
 .gallery-lightbox-caption span{display:block;color:var(--muted);margin-top:3px}
 @media(max-width:800px){.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.gallery-grid{grid-template-columns:1fr 1fr;gap:10px}.gallery-grid .tile{aspect-ratio:3/4}.gallery-grid .tile-label{font-size:14px;padding:35px 10px 10px}.gallery-filters{gap:6px}.gallery-filter{padding:7px 10px;font-size:10px}}
+
+/* Cartes Actualités & Événements — finition American Old School */
+#newsGrid, #eventsGrid { align-items:stretch; }
+.record-card { padding:0; min-height:0; overflow:hidden; border:1px solid rgba(225,205,169,.24); background:linear-gradient(155deg,#28231e,#191715 78%); box-shadow:0 12px 28px rgba(0,0,0,.18); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
+.record-card:hover { transform:translateY(-5px); border-color:rgba(194,61,55,.75); box-shadow:0 18px 34px rgba(0,0,0,.3); }
+.record-media { width:100%; aspect-ratio:16/10; overflow:hidden; background:#100f0e; border-bottom:3px solid var(--red); }
+.record-image { display:block; width:100%; height:100%; object-fit:cover; margin:0; transition:transform .35s ease; }
+.record-card:hover .record-image { transform:scale(1.035); }
+.record-body { padding:22px 23px 24px; display:flex; flex-direction:column; align-items:flex-start; min-height:175px; }
+.record-body .date { display:inline-block; color:#e2a39a; border-bottom:1px solid rgba(194,61,55,.65); padding-bottom:7px; font-size:11px; letter-spacing:1.7px; }
+.record-body h3 { color:var(--paper); font-size:25px; line-height:1.12; margin:14px 0 9px; overflow-wrap:anywhere; }
+.record-body p { color:#c9bea9; font-size:13px; line-height:1.65; margin:0; white-space:pre-line; }
+.record-location { color:#e2cba1; font-size:12px; margin-top:14px; letter-spacing:.4px; }
+@media(max-width:760px) { #newsGrid,#eventsGrid { grid-template-columns:1fr; } .record-body { min-height:0; padding:19px; } .record-body h3 { font-size:23px; } }
+
 </style></head>
 <body><div class="topline"></div>
 <header class="nav"><div class="wrap navin"><a class="brand" href="/"><img src="assets/logo-thomas-ink.jpg" alt="Logo Thoma's Ink Tattoo"><span>Thoma's Ink<small>Studio de tatouage</small></span></a><nav class="links"><a href="/galerie">Galerie</a><a href="/actualites">Actualités</a><a href="/evenements">Événements</a><a href="/vinted">Vinted</a><a href="/le-shop">Le shop</a><span id="customNav"></span><a href="/contact">Contact</a></nav><a class="nav-cta" href="/contact">Nous contacter</a></div></header>
@@ -150,7 +165,7 @@ function renderRecords(container, rows, kind) {
     return;
   }
   rows.forEach(item => {
-    const card = make('article', kind === 'gallery' ? 'tile' : 'news-card');
+    const card = make('article', kind === 'gallery' ? 'tile' : `news-card record-card record-${kind}`);
     if (kind === 'gallery') {
       const img = make('img'); img.src = safeUrl(item.image_url); img.alt = item.title || 'Tatouage'; img.loading = 'lazy';
       const label = make('div', 'tile-label');
@@ -161,9 +176,28 @@ function renderRecords(container, rows, kind) {
       card.addEventListener('click', () => openGalleryImage(img.src, img.alt, item.title || 'Réalisation', item.description || '', item.category || ''));
     } else {
       const imageUrl = kind === 'events' ? item.poster_url : item.image_url;
-      if (imageUrl) { const img = make('img', 'event-poster'); img.src = safeUrl(imageUrl); img.alt = item.title || ''; img.loading = 'lazy'; card.append(img); }
-      const date = item.event_date ? new Date(item.event_date).toLocaleString('fr-FR') : (item.published_at ? new Date(item.published_at).toLocaleDateString('fr-FR') : 'THOMA’S INK');
-      card.append(make('div', 'date', date), make('h3', '', item.title || ''), make('p', '', item.excerpt || item.description || item.content || ''));
+      if (imageUrl) {
+        const media = make('div', 'record-media');
+        const img = make('img', 'record-image'); img.src = safeUrl(imageUrl); img.alt = item.title || ''; img.loading = 'lazy';
+        media.append(img); card.append(media);
+      }
+      const rawDate = kind === 'events' ? item.event_date : item.published_at;
+      let date = 'THOMA’S INK';
+      if (rawDate) {
+        const parsed = new Date(rawDate);
+        if (!Number.isNaN(parsed.getTime())) {
+          date = kind === 'events'
+            ? parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+            : parsed.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+          if (kind === 'events' && (parsed.getHours() || parsed.getMinutes())) date += ' · ' + parsed.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+      }
+      const body = make('div', 'record-body');
+      body.append(make('div', 'date', date), make('h3', '', item.title || 'Sans titre'));
+      const description = item.excerpt || item.description || item.content || '';
+      if (description) body.append(make('p', '', description));
+      if (kind === 'events' && item.location) body.append(make('div', 'record-location', '⌖ ' + item.location));
+      card.append(body);
     }
     container.append(card);
   });
