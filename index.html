@@ -169,7 +169,7 @@ function renderCoreFallback(slug, container) {
 
 async function showPages() {
   const { data, error } = await db.from('pages')
-    .select('title,slug,content,description,blocks,published,show_in_menu,sort_order')
+    .select('title,slug,content,blocks,published,show_in_menu,sort_order')
     .eq('published', true).order('sort_order', { ascending: true });
   if (error) console.warn('Pages personnalisées indisponibles :', error.message);
   const pages = data || [];
@@ -196,7 +196,7 @@ async function showPages() {
         const section = make('section', 'section ' + (i % 2 ? 'paper' : ''));
         const wrap = make('div', 'wrap');
         wrap.append(make('h2', '', p.title));
-        if (p.content || p.description) wrap.append(make('p', 'section-intro dark-intro', p.content || p.description));
+        if (p.content) wrap.append(make('p', 'section-intro dark-intro', p.content));
         (Array.isArray(p.blocks) ? p.blocks : []).forEach(b => renderBlock(wrap, b));
         const link = make('a', 'btn', 'Découvrir'); link.href = '/' + p.slug; wrap.append(link);
         section.append(wrap); custom.append(section);
@@ -221,7 +221,7 @@ async function showPages() {
   const title = page?.title || core[1];
   const left = make('div', ''); left.append(make('div', 'kicker', "THOMA'S INK TATTOO · À DÉCOUVRIR"), make('h2', '', title));
   heading.append(left); wrap.append(heading);
-  const intro = page?.content || page?.description;
+  const intro = page?.content;
   if (intro) wrap.append(make('p', 'section-intro dark-intro', intro));
   if (page) (Array.isArray(page.blocks) ? page.blocks : []).forEach(b => renderBlock(wrap, b));
   if (core && core[2]) await addCoreContent(path, wrap);
