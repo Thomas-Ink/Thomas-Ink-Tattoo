@@ -47,7 +47,7 @@ button.secondary{background:transparent;border-color:var(--line);color:var(--pap
 </section></main>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26V9p4zwYKB-_w4lUpcg_DghXwS2X');
+const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26vS9p4zwYKB-_w4lUpcg_DghXwS2X');
 const $=id=>document.getElementById(id), loginPanel=$('loginPanel'), app=$('app'), status=$('status');
 const slug=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 function say(t){status.textContent=t}
