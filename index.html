@@ -54,6 +54,11 @@ body.visual-edit-mode .nav a{cursor:pointer}
 
 
 .shop-category-filters{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 24px}.shop-category-filters button{border:1px solid #8f8068;background:transparent;color:var(--paper);padding:10px 15px;font:600 11px var(--display);letter-spacing:1px;text-transform:uppercase;cursor:pointer}.section.paper .shop-category-filters button{color:var(--ink);border-color:#9a8b70}.shop-category-filters button.active{background:var(--red);border-color:var(--red);color:#fff}.product-card[hidden]{display:none!important}
+
+.page-block-heading{margin:34px 0 14px;font-family:var(--display-font,inherit);font-size:clamp(1.35rem,2.5vw,2rem);line-height:1.15;color:var(--ink-light,#f4edcf)}
+.page-figure{margin:24px 0}
+.page-figure .custom-image{display:block;max-width:100%;height:auto;border:1px solid rgba(255,255,255,.16)}
+.page-caption{margin-top:8px;opacity:.8;font-size:.9rem}
 </style></head>
 <body><div class="topline"></div>
 <header class="nav"><div class="wrap navin"><a class="brand" href="/"><img src="assets/logo-thomas-ink.jpg" alt="Logo Thoma's Ink Tattoo"><span>Thoma's Ink<small>Studio de tatouage</small></span></a><nav class="links"><a href="/galerie">Galerie</a><a href="/actualites">Actualités</a><a href="/evenements">Événements</a><a href="/le-shop">Le shop</a><a href="/boutique">La boutique</a><span id="customNav"></span><a href="/contact">Contact</a></nav><a class="nav-cta" href="/contact">Nous contacter</a></div></header>
@@ -140,22 +145,32 @@ async function loadPublicSettings() {
   }
 }
 
+function normalizePageBlocks(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') { try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : []; } catch { return []; } }
+  return [];
+}
+
 function renderBlock(container, block) {
-  if (!block || !block.type) return;
-  if (block.type === 'heading') container.append(make('h3', '', block.text || ''));
-  else if (block.type === 'text') container.append(make('p', 'custom-content', block.text || ''));
-  else if (block.type === 'image' && block.url) {
+  if (!block) return;
+  const type = block.type || block.kind || '';
+  const text = block.text || block.content || block.title || '';
+  if (type === 'heading' || type === 'title') {
+    if (text) container.append(make('h3', 'page-block-heading', text));
+  } else if (type === 'text' || type === 'paragraph') {
+    if (text) container.append(make('p', 'custom-content', text));
+  } else if ((type === 'image' || type === 'photo') && (block.url || block.src)) {
     const figure = make('figure', 'page-figure');
-    const img = make('img', 'custom-image'); img.src = safeUrl(block.url); img.alt = block.caption || '';
+    const img = make('img', 'custom-image'); img.src = safeUrl(block.url || block.src); img.alt = block.caption || '';
     figure.append(img);
     if (block.caption) figure.append(make('figcaption', 'page-caption', block.caption));
     container.append(figure);
-  } else if (block.type === 'button' && block.url) {
-    const a = make('a', 'btn custom-link', block.label || 'En savoir plus');
-    a.href = safeUrl(block.url); container.append(a);
-  } else if (block.type === 'gallery' && Array.isArray(block.images)) {
+  } else if ((type === 'button' || type === 'link') && (block.url || block.href)) {
+    const a = make('a', 'btn custom-link', block.label || block.text || 'En savoir plus');
+    a.href = safeUrl(block.url || block.href); container.append(a);
+  } else if (type === 'gallery' && Array.isArray(block.images)) {
     const grid = make('div', 'grid3 page-gallery');
-    block.images.forEach(url => { const img = make('img', 'custom-image'); img.src = safeUrl(url); img.alt = block.caption || 'Photo'; grid.append(img); });
+    block.images.forEach(item => { const url = typeof item === 'string' ? item : item?.url || item?.src; if (!url) return; const img = make('img', 'custom-image'); img.src = safeUrl(url); img.alt = block.caption || 'Photo'; grid.append(img); });
     container.append(grid);
     if (block.caption) container.append(make('p', 'page-caption', block.caption));
   }
@@ -396,7 +411,8 @@ async function renderRoute() {
   left.append(make('div', 'kicker', "THOMA'S INK TATTOO · À DÉCOUVRIR"), make('h2', '', title));
   heading.append(left); wrap.append(heading);
   if (page?.content) wrap.append(make('p', 'section-intro dark-intro', page.content));
-  if (page && Array.isArray(page.blocks)) page.blocks.forEach(b => renderBlock(wrap, b));
+  const pageBlocks = normalizePageBlocks(page?.blocks);
+  pageBlocks.forEach(b => renderBlock(wrap, b));
   if (detailId && (path === 'actualites' || path === 'evenements')) await renderPublicationDetail(path === 'actualites' ? 'news' : 'events', detailId, wrap);
   else if (core && (core[2] || path === 'le-shop' || path === 'boutique')) await addCoreContent(path, wrap);
   else if (!page && core) renderCoreFallback(path, wrap);
@@ -411,7 +427,7 @@ async function showPages() {
     .select('title,slug,content,blocks,published,show_in_menu,sort_order')
     .eq('published', true).order('sort_order', { ascending: true });
   if (error) console.warn('Pages personnalisées indisponibles :', error.message);
-  publicPages = data || [];
+  publicPages = (data || []).map(p => ({ ...p, blocks: normalizePageBlocks(p.blocks) }));
   buildNavigation();
   await renderRoute();
   if (!location.pathname.replace(/^\/+|\/+$/g, '')) {
