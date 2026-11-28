@@ -103,6 +103,7 @@ const CORE = [
   ['galerie', 'Galerie', 'gallery'],
   ['actualites', 'Actualités', 'news'],
   ['evenements', 'Événements', 'events'],
+  ['artistes', 'Les artistes', null],
   ['le-shop', 'Le shop', null],
   ['boutique', 'La boutique', null],
   ['contact', 'Contact', null]
@@ -265,6 +266,47 @@ function renderGallery(container, rows, filtersContainer) {
     });
   }
   draw();
+}
+
+
+async function getTattooArtists(){
+ const {data,error}=await db.from('site_settings').select('setting_value').eq('setting_key','tattoo_artists_profiles').maybeSingle();
+ if(error){console.warn('Artistes :',error.message);return []}
+ let rows=data?.setting_value||[];if(typeof rows==='string'){try{rows=JSON.parse(rows)}catch{rows=[]}}
+ return Array.isArray(rows)?rows.filter(x=>x&&x.published!==false).sort((a,b)=>(a.order||0)-(b.order||0)):[];
+}
+async function renderTattooArtists(slug,detailSlug,container){
+ const artists=await getTattooArtists();
+ if(detailSlug){
+  const artist=artists.find(x=>(x.slug||'')===detailSlug);
+  if(!artist){container.append(make('div','empty dark','Cette fiche artiste est introuvable ou n’est plus publiée.'));return}
+  const detail=make('article','record-detail artist-profile');
+  if(artist.photo){const media=make('div','record-detail-media');const img=make('img');img.src=safeUrl(artist.photo);img.alt=artist.name||'Artiste';media.append(img);detail.append(media)}
+  const body=make('div','record-detail-body');body.append(make('div','kicker',artist.role||'Artiste tatoueur'),make('h2','',artist.name||''));
+  if(artist.styles)body.append(make('p','',artist.styles));
+  if(artist.bio)body.append(make('div','record-detail-text',artist.bio));
+  const links=make('div','shop-actions');
+  if(artist.instagram){const a=make('a','btn outline','Instagram');a.href=safeUrl(artist.instagram);a.target='_blank';a.rel='noopener noreferrer';links.append(a)}
+  if(artist.link){const a=make('a','btn','Site / portfolio');a.href=safeUrl(artist.link);a.target='_blank';a.rel='noopener noreferrer';links.append(a)}
+  if(links.childElementCount)body.append(links);
+  detail.append(body);container.append(detail);
+  const photos=Array.isArray(artist.gallery)?artist.gallery:[];
+  const galleryTitle=make('h3','page-block-heading','Sa galerie');
+  container.append(galleryTitle);
+  if(!photos.length)container.append(make('div','empty dark','La galerie de cet artiste sera bientôt enrichie.'));
+  else {const grid=make('div','grid3 gallery-grid artist-gallery');photos.forEach(p=>{if(!p||!p.url)return;const tile=make('article','tile');const img=make('img');img.src=safeUrl(p.url);img.alt=p.caption||artist.name||'Tatouage';img.loading='lazy';tile.append(img);if(p.caption)tile.append(make('div','tile-label',p.caption));img.addEventListener('click',()=>openGalleryImage(img.src,img.alt,p.caption||'', '',artist.name||''));grid.append(tile)});container.append(grid)}
+  return;
+ }
+ const grid=make('div','grid3 artist-directory');
+ if(!artists.length){grid.append(make('div','empty dark','Les fiches des artistes seront bientôt disponibles.'));container.append(grid);return}
+ artists.forEach(artist=>{
+  const card=make('a','artisan-card artist-directory-card');card.href='/artistes/'+(artist.slug||'');
+  if(artist.photo){const img=make('img');img.src=safeUrl(artist.photo);img.alt=artist.name||'Artiste';img.loading='lazy';card.append(img)}
+  const body=make('div','card-body');body.append(make('div','kicker',artist.role||'Artiste tatoueur'),make('h3','',artist.name||''));
+  if(artist.styles)body.append(make('p','',artist.styles));
+  body.append(make('span','record-open','Découvrir son univers ↗'));card.append(body);grid.append(card);
+ });
+ container.append(grid);
 }
 
 async function addCoreContent(slug, container) {
@@ -466,6 +508,7 @@ async function renderRoute() {
   const pageBlocks = normalizePageBlocks(page?.blocks);
   pageBlocks.forEach(b => renderBlock(wrap, b));
   if (detailId && (path === 'actualites' || path === 'evenements')) await renderPublicationDetail(path === 'actualites' ? 'news' : 'events', detailId, wrap);
+  else if (path === 'artistes') await renderTattooArtists(path,detailId,wrap);
   else if (core && (core[2] || path === 'le-shop' || path === 'boutique')) await addCoreContent(path, wrap);
   else if (!page && core) renderCoreFallback(path, wrap);
   const backLabel = detailId ? (path === 'actualites' ? '← Retour aux actualités' : '← Retour aux événements') : '← Retour à l’accueil';
@@ -493,7 +536,7 @@ document.addEventListener('click', async event => {
   const link = event.target.closest('a[href]');
   if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const url = new URL(link.href, location.href);
-  if (url.origin !== location.origin || !/^\/(galerie|actualites|evenements|vinted|le-shop|boutique|contact)(\/[^/]+)?\/?$/.test(url.pathname)) return;
+  if (url.origin !== location.origin || !/^\/(galerie|actualites|evenements|artistes|vinted|le-shop|boutique|contact)(\/[^/]+)?\/?$/.test(url.pathname)) return;
   event.preventDefault();
   history.pushState({}, '', url.pathname);
   await renderRoute();
