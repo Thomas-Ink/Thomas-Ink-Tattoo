@@ -118,20 +118,54 @@
  <div class="panel page-list-panel"><h3>Pages du site</h3><div id="visualPagesList"></div></div>
 </div>
 <div class="panel" id="artistManager">
-<h2>Gestion des artistes</h2>
-<p class="muted">Ajoute les tatoueurs et artistes invités. Leur fiche apparaîtra automatiquement sur le site. Les photos sont envoyées dans la médiathèque du site.</p>
+<h2>Gestion des artisans</h2>
+<p class="muted">Ajoute les artisans et partenaires du shop. Ils apparaîtront dans la page « Le shop ». Les photos sont envoyées dans la médiathèque du site.</p>
 <div class="grid">
-<div><label>Nom de l'artiste</label><input id="artistName" placeholder="Prénom / nom">
-<label>Rôle ou spécialité</label><input id="artistRole" placeholder="Tatoueur · Guest artist">
+<div><label>Nom de l'artisan</label><input id="artistName" placeholder="Prénom / nom">
+<label>Activité / spécialité</label><input id="artistRole" placeholder="Tatoueur · Guest artist">
 <label>Styles / spécialités</label><input id="artistStyles" placeholder="Old School, japonais, réalisme…">
 <label>Présentation</label><textarea id="artistBio" placeholder="Quelques mots sur l'artiste…"></textarea></div>
-<div><label>Photo de l'artiste</label><input id="artistPhoto" type="file" accept="image/jpeg,image/png,image/webp">
+<div><label>Photo de l'artisan</label><input id="artistPhoto" type="file" accept="image/jpeg,image/png,image/webp">
 <label>Instagram (facultatif)</label><input id="artistInstagram" placeholder="https://instagram.com/..."><label>Lien vers sa boutique (facultatif)</label><input id="artistShopUrl" type="url" placeholder="https://...">
 <label>Ordre d'affichage</label><input id="artistOrder" type="number" value="1" min="1">
 <label><input id="artistPublished" type="checkbox" checked style="width:auto"> Afficher sur le site</label>
 <button id="saveArtist">Ajouter l'artiste</button><button id="cancelArtist" class="secondary hidden">Annuler la modification</button></div>
 </div><div id="artistsList"></div>
 </div>
+
+<div class="panel" id="tattooArtistManager">
+<h2>Gestion des artistes tatoueurs</h2>
+<p class="muted">Chaque artiste possède sa fiche personnelle et sa propre galerie. Les photos de sa galerie restent séparées de celles des autres artistes et de la galerie générale du shop.</p>
+<div class="grid">
+ <div>
+  <label>Nom / prénom de l'artiste</label><input id="tattooArtistName" placeholder="Prénom / nom">
+  <label>Nom d'adresse de sa fiche (facultatif)</label><input id="tattooArtistSlug" placeholder="ex. thomas">
+  <label>Rôle / spécialité</label><input id="tattooArtistRole" placeholder="Tatoueur résident · Guest artist">
+  <label>Styles de tatouage</label><input id="tattooArtistStyles" placeholder="Old School, néo-traditionnel…">
+  <label>Présentation personnelle</label><textarea id="tattooArtistBio" placeholder="Présente son parcours, son univers et son travail…"></textarea>
+ </div>
+ <div>
+  <label>Portrait</label><input id="tattooArtistPhoto" type="file" accept="image/jpeg,image/png,image/webp">
+  <label>Instagram (facultatif)</label><input id="tattooArtistInstagram" placeholder="https://instagram.com/...">
+  <label>Autre lien (facultatif)</label><input id="tattooArtistLink" type="url" placeholder="https://...">
+  <label>Ordre d'affichage</label><input id="tattooArtistOrder" type="number" min="1" value="1">
+  <label><input id="tattooArtistPublished" type="checkbox" checked style="width:auto"> Afficher sur la page Les artistes</label>
+  <button id="saveTattooArtist" type="button">Ajouter l'artiste</button><button id="cancelTattooArtist" class="secondary hidden" type="button">Annuler la modification</button>
+ </div>
+</div>
+<div id="tattooArtistsList"></div>
+<div class="panel" id="tattooArtistGalleryPanel">
+ <h3>Galerie personnelle de l'artiste</h3>
+ <p class="muted">Sélectionne un artiste, ajoute ses photos et leurs légendes. Elles seront visibles uniquement sur sa fiche.</p>
+ <label>Artiste à gérer</label><select id="tattooGalleryArtist"><option value="">Choisir un artiste</option></select>
+ <div class="grid">
+  <div><label>Photos (sélection multiple possible)</label><input id="tattooGalleryFiles" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple></div>
+  <div><label>Légende commune (facultatif)</label><input id="tattooGalleryCaption" placeholder="Ex. Old School · pièce terminée"><button id="addTattooGalleryPhotos" type="button">Ajouter les photos à sa galerie</button></div>
+ </div>
+ <div id="tattooGalleryList"></div>
+</div>
+</div>
+
 <div class="panel" id="shopManager">
 <h2>Gestion des articles du shop</h2>
 <p class="muted">Ajoute les articles du shop. Le bouton « Acheter sur Vinted » renverra directement vers l’annonce Vinted de chaque article. Les photos sont stockées dans la médiathèque du site.</p>
@@ -165,7 +199,7 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 const db=createClient('https://ikmkujviakqwgwbbjhxj.supabase.co','sb_publishable_s26vS9p4zwYKB-_w4lUpcg_DghXwS2X');const $=id=>document.getElementById(id);const status=$('status');
 function say(t){if(status)status.textContent=t}function loginError(t){$('loginStatus').textContent=t;$('loginStatus').classList.remove('hidden')}
 async function adminCheck(){const {data:{user},error}=await db.auth.getUser();if(error||!user)return false;const {data,error:e}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();return !e&&!!data}
-async function refresh(){if(await adminCheck()){$('loginPanel').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');say('Connecté. Les modifications sont synchronisées avec Supabase.');await Promise.all([loadSettings(),loadLists(),loadArtists(),loadShopProducts()])}else{await db.auth.signOut();$('loginPanel').classList.remove('hidden');$('app').classList.add('hidden');$('logout').classList.add('hidden')}}
+async function refresh(){if(await adminCheck()){$('loginPanel').classList.add('hidden');$('app').classList.remove('hidden');$('logout').classList.remove('hidden');say('Connecté. Les modifications sont synchronisées avec Supabase.');await Promise.all([loadSettings(),loadLists(),loadArtists(),loadShopProducts(),loadTattooArtists()])}else{await db.auth.signOut();$('loginPanel').classList.remove('hidden');$('app').classList.add('hidden');$('logout').classList.add('hidden')}}
 $('login').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password)return loginError('Renseigne ton e-mail et ton mot de passe.');$('login').disabled=true;const {error}=await db.auth.signInWithPassword({email,password});$('login').disabled=false;if(error)return loginError('Connexion refusée : '+error.message);await refresh()};$('logout').onclick=async()=>{await db.auth.signOut();await refresh()};db.auth.onAuthStateChange((_e,session)=>{if(session)setTimeout(refresh,0)});
 const slug=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 async function upload(file){if(!file)return '';if(file.size>10*1024*1024)throw Error('Image trop lourde : maximum 10 Mo.');if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type))throw Error('Format non accepté. Utilise JPG, PNG, WEBP ou GIF.');const path=Date.now()+'-'+crypto.randomUUID()+'-'+slug(file.name||'image');const {error}=await db.storage.from('site-media').upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;return db.storage.from('site-media').getPublicUrl(path).data.publicUrl}
@@ -301,5 +335,58 @@ function editShopProduct(i){const p=shopProducts[i];editingShopProduct=i;$('shop
 async function saveShopProducts(){const {error}=await db.from('site_settings').upsert({setting_key:'shop_products',setting_value:shopProducts,updated_at:new Date().toISOString()},{onConflict:'setting_key'});if(error)throw error;await loadShopProducts()}
 $('saveShopProduct').onclick=()=>task(async()=>{const title=$('shopTitle').value.trim(),vinted_url=$('shopVintedUrl').value.trim();if(!title)throw Error('Indique le nom de l’article.');if(!/^https:\/\/([a-z0-9-]+\.)?vinted\.[a-z.]+\//i.test(vinted_url))throw Error('Ajoute le lien direct de l’annonce Vinted.');const photo=await upload($('shopPhoto').files[0]);const old=editingShopProduct>=0?shopProducts[editingShopProduct]:{};const item={title,category:$('shopCategory').value.trim(),price:$('shopPrice').value.trim(),description:$('shopDescription').value.trim(),vinted_url,order:Number($('shopOrder').value)||1,published:$('shopPublished').checked,photo:photo||old.photo||''};if(!item.photo)throw Error('Ajoute une photo de l’article.');if(editingShopProduct>=0)shopProducts[editingShopProduct]=item;else shopProducts.push(item);await saveShopProducts();shopFormReset()});
 $('cancelShopProduct').onclick=shopFormReset;
+
+
+// Gestion indépendante des artistes tatoueurs et de leurs galeries personnelles.
+let tattooArtists=[], editingTattooArtistId=null;
+const tattooArtistKey='tattoo_artists_profiles';
+const parseArrayValue=v=>{if(typeof v==='string'){try{return JSON.parse(v)}catch{return []}}return Array.isArray(v)?v:[]};
+async function loadTattooArtists(){
+ const {data,error}=await db.from('site_settings').select('setting_value').eq('setting_key',tattooArtistKey).maybeSingle();
+ if(error)throw error; tattooArtists=parseArrayValue(data?.setting_value);
+ const list=$('tattooArtistsList');list.innerHTML='';
+ const sorted=[...tattooArtists].sort((x,y)=>(x.order||0)-(y.order||0));
+ if(!sorted.length)list.innerHTML='<p class="muted">Aucun artiste tatoueur enregistré.</p>';
+ sorted.forEach(x=>{
+  const row=document.createElement('div');row.className='item';
+  const info=document.createElement('div');info.textContent=x.name+' — '+(x.role||'Artiste tatoueur')+(x.published?'':' · masqué');
+  const small=document.createElement('small');small.textContent=(x.styles||'')+' · '+(x.gallery||[]).length+' photo(s)';info.append(small);
+  const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.className='secondary';edit.textContent='Modifier';edit.onclick=()=>editTattooArtist(x.id);
+  const gallery=document.createElement('button');gallery.className='secondary';gallery.textContent='Gérer sa galerie';gallery.onclick=()=>{$('tattooGalleryArtist').value=x.id;loadTattooGallery();$('tattooArtistGalleryPanel').scrollIntoView({behavior:'smooth'})};
+  const del=document.createElement('button');del.className='danger';del.textContent='Supprimer';del.onclick=async()=>{if(!confirm('Supprimer cette fiche artiste et sa galerie ?'))return;tattooArtists=tattooArtists.filter(y=>y.id!==x.id);await saveTattooArtists()};
+  actions.append(edit,gallery,del);row.append(info,actions);list.append(row);
+ });
+ const select=$('tattooGalleryArtist'), old=select.value;select.innerHTML='<option value="">Choisir un artiste</option>';
+ sorted.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=x.name;select.append(o)});
+ if(sorted.some(x=>x.id===old))select.value=old;
+}
+async function saveTattooArtists(){const {error}=await db.from('site_settings').upsert({setting_key:tattooArtistKey,setting_value:tattooArtists,updated_at:new Date().toISOString()},{onConflict:'setting_key'});if(error)throw error;await loadTattooArtists()}
+function resetTattooArtist(){['tattooArtistName','tattooArtistSlug','tattooArtistRole','tattooArtistStyles','tattooArtistBio','tattooArtistInstagram','tattooArtistLink','tattooArtistOrder'].forEach(id=>$(id).value='');$('tattooArtistOrder').value='1';$('tattooArtistPhoto').value='';$('tattooArtistPublished').checked=true;$('saveTattooArtist').textContent='Ajouter l’artiste';$('cancelTattooArtist').classList.add('hidden');editingTattooArtistId=null}
+function editTattooArtist(id){const x=tattooArtists.find(y=>y.id===id);if(!x)return;editingTattooArtistId=id;$('tattooArtistName').value=x.name||'';$('tattooArtistSlug').value=x.slug||'';$('tattooArtistRole').value=x.role||'';$('tattooArtistStyles').value=x.styles||'';$('tattooArtistBio').value=x.bio||'';$('tattooArtistInstagram').value=x.instagram||'';$('tattooArtistLink').value=x.link||'';$('tattooArtistOrder').value=x.order||1;$('tattooArtistPublished').checked=x.published!==false;$('saveTattooArtist').textContent='Enregistrer les modifications';$('cancelTattooArtist').classList.remove('hidden');$('tattooArtistManager').scrollIntoView({behavior:'smooth'})}
+$('saveTattooArtist').onclick=()=>task(async()=>{
+ const name=$('tattooArtistName').value.trim();if(!name)throw Error('Indique le nom de l’artiste.');
+ const old=tattooArtists.find(x=>x.id===editingTattooArtistId)||{};
+ const photo=await upload($('tattooArtistPhoto').files[0]);
+ const slugValue=slug($('tattooArtistSlug').value.trim()||name);
+ const item={...old,id:old.id||('artist-'+crypto.randomUUID()),slug:slugValue,name,role:$('tattooArtistRole').value.trim(),styles:$('tattooArtistStyles').value.trim(),bio:$('tattooArtistBio').value.trim(),instagram:$('tattooArtistInstagram').value.trim(),link:$('tattooArtistLink').value.trim(),order:Number($('tattooArtistOrder').value)||1,published:$('tattooArtistPublished').checked,photo:photo||old.photo||'',gallery:Array.isArray(old.gallery)?old.gallery:[]};
+ if(editingTattooArtistId)tattooArtists=tattooArtists.map(x=>x.id===editingTattooArtistId?item:x);else tattooArtists.push(item);
+ await saveTattooArtists();resetTattooArtist();
+});
+$('cancelTattooArtist').onclick=resetTattooArtist;
+$('tattooGalleryArtist').onchange=loadTattooGallery;
+async function loadTattooGallery(){
+ const x=tattooArtists.find(y=>y.id===$('tattooGalleryArtist').value),list=$('tattooGalleryList');list.innerHTML='';
+ if(!x){list.textContent='Choisis un artiste pour afficher sa galerie.';return}
+ if(!(x.gallery||[]).length){list.innerHTML='<p class="muted">Aucune photo dans cette galerie.</p>';return}
+ x.gallery.forEach((p,i)=>{const row=document.createElement('div');row.className='item';const info=document.createElement('div');if(p.url){const im=document.createElement('img');im.src=p.url;im.className='preview';info.append(im)}const cap=document.createElement('small');cap.textContent=p.caption||'Sans légende';info.append(cap);const del=document.createElement('button');del.className='danger';del.textContent='Supprimer';del.onclick=async()=>{if(!confirm('Retirer cette photo de la galerie ?'))return;x.gallery.splice(i,1);await saveTattooArtists();$('tattooGalleryArtist').value=x.id;loadTattooGallery()};row.append(info,del);list.append(row)});
+}
+$('addTattooGalleryPhotos').onclick=()=>task(async()=>{
+ const x=tattooArtists.find(y=>y.id===$('tattooGalleryArtist').value);if(!x)throw Error('Choisis d’abord un artiste.');
+ const files=[...$('tattooGalleryFiles').files];if(!files.length)throw Error('Sélectionne au moins une photo.');
+ const caption=$('tattooGalleryCaption').value.trim();x.gallery=x.gallery||[];
+ for(const file of files){const url=await upload(file);x.gallery.push({id:'photo-'+crypto.randomUUID(),url,caption,created_at:new Date().toISOString()})}
+ await saveTattooArtists();$('tattooGalleryFiles').value='';$('tattooGalleryCaption').value='';$('tattooGalleryArtist').value=x.id;await loadTattooGallery();
+});
 
 </script></body></html>
