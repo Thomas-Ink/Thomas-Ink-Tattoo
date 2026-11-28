@@ -525,21 +525,47 @@ async function startSite() {
   await loadPublicSettings();
   await showPages();
 }
+function assignLiveEditKeys(){
+  const nodes=[...document.querySelectorAll('h1,h2,h3,p,a,img,.eyebrow,.kicker,.tile-label,.contact-box b')];
+  const counts=new Map();
+  nodes.forEach((el,i)=>{
+    const section=el.closest('section[id],section') ;
+    const region=section ? (section.id || [...section.classList].find(c=>c!=='section') || 'section')
+      : (el.closest('header') ? 'header' : el.closest('footer') ? 'footer' : 'home');
+    const keyBase=region+'-'+el.tagName.toLowerCase();
+    const n=counts.get(keyBase)||0;
+    counts.set(keyBase,n+1);
+    // Keep the old index as a fallback so existing saved edits remain readable.
+    el.dataset.liveEditLegacyKey='element-'+i;
+    el.dataset.liveEditKey=keyBase+'-'+n;
+  });
+}
+function setLiveEditedText(el,value){
+  // Keep the colored span in the hero heading instead of flattening its markup.
+  if(el.matches('.hero h1') && el.querySelector('span')){
+    const span=el.querySelector('span');
+    const parts=String(value).trim().split(/\s+/);
+    const last=parts.pop()||'';
+    el.firstChild && el.firstChild.nodeType===Node.TEXT_NODE
+      ? el.firstChild.textContent=(parts.length?parts.join(' ')+' ':'')
+      : el.insertBefore(document.createTextNode(parts.length?parts.join(' ')+' ':''),span);
+    span.textContent=last;
+    return;
+  }
+  el.textContent=String(value);
+}
 async function applySavedVisualEdits() {
   const {data,error}=await db.from('site_settings').select('setting_value').eq('setting_key','visual_edits').maybeSingle();
   if(error){console.warn('Modifications visuelles indisponibles',error.message);return;}
   let edits=data?.setting_value||{}; if(typeof edits==='string'){try{edits=JSON.parse(edits)}catch{edits={}}}
   document.querySelectorAll('[data-live-edit-key]').forEach(el=>{
-    const v=edits[el.dataset.liveEditKey]; if(!v)return;
-    if(v.text!==undefined)el.textContent=v.text;
+    const v=edits[el.dataset.liveEditKey] || edits[el.dataset.liveEditLegacyKey]; if(!v)return;
+    if(v.text!==undefined)setLiveEditedText(el,v.text);
     if(v.src!==undefined && el.tagName==='IMG')el.src=v.src;
     if(v.href!==undefined && el.tagName==='A')el.href=v.href;
   });
 }
-function assignLiveEditKeys(){
-  const nodes=[...document.querySelectorAll('h1,h2,h3,p,a,img,.eyebrow,.kicker,.tile-label,.contact-box b')];
-  nodes.forEach((el,i)=>{el.dataset.liveEditKey='element-'+i;});
-}
+
 function setupVisualEditMode(){
   if(new URLSearchParams(location.search).get('visualEditor')!=='1')return;
   document.body.classList.add('visual-edit-mode');
@@ -549,7 +575,7 @@ function setupVisualEditMode(){
     parent.postMessage({type:'thomas-live-select',key:el.dataset.liveEditKey,tag:el.tagName,text:el.tagName==='IMG'?'':el.textContent.trim(),src:el.tagName==='IMG'?el.src:'',href:el.tagName==='A'?el.getAttribute('href')||'':''},location.origin);
   },true)});
   window.addEventListener('message',e=>{if(e.origin!==location.origin||!e.data)return;const d=e.data;
-    if(d.type==='thomas-live-apply'){const el=document.querySelector('[data-live-edit-key="'+CSS.escape(d.key)+'"]');if(!el)return;if(d.text!==undefined){if(el.tagName==='IMG'){}else el.textContent=d.text}if(d.src!==undefined&&el.tagName==='IMG')el.src=d.src;if(d.href!==undefined&&el.tagName==='A')el.href=d.href;}
+    if(d.type==='thomas-live-apply'){const el=document.querySelector('[data-live-edit-key="'+CSS.escape(d.key)+'"]');if(!el)return;if(d.text!==undefined && el.tagName!=='IMG')setLiveEditedText(el,d.text);if(d.src!==undefined&&el.tagName==='IMG')el.src=d.src;if(d.href!==undefined&&el.tagName==='A')el.href=d.href;}
   });
   parent.postMessage({type:'thomas-live-ready'},location.origin);
 }
