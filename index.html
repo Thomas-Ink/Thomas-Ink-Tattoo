@@ -325,6 +325,8 @@ function buildNavigation() {
   if (!nav) return;
   nav.innerHTML = '';
   CORE.forEach(([slug, label]) => {
+    // Le contact reste accessible via le bouton rouge « Nous contacter ».
+    if (slug === 'contact') return;
     const row = publicPages.find(p => p.slug === slug);
     const a = make('a', '', row?.title || label);
     a.href = '/' + slug;
